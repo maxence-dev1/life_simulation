@@ -1,0 +1,1 @@
+minos_list
