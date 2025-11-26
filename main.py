@@ -6,6 +6,7 @@ import time
 import random
 import food
 import pygame_menu
+import graph
 
 pygame.init()
 
@@ -35,7 +36,6 @@ def start():
     global running 
     state_menu = False
     running = True
-
 
 
 menu = pygame_menu.Menu(
@@ -118,6 +118,11 @@ menu.add.text_input(
 #___________________________________________
 
 
+#Listes pour faire les stats (actualisés à chaque frame)
+minos_list_id = [] #Stocke les ids de chaque mino
+minos_list_faim = [] #Stocke la satiete de chaque mino
+frame_list = []
+
 
 state_menu = True
 while state_menu:
@@ -141,16 +146,22 @@ minos_list = []
 for i in range(nb_minos[0]):
         m = minos.Mino(i,0,WIDTH, 0, HEIGHT, food_list,resistance_mu[0], resistance_sigma[0], vitesse_mu[0], vitesse_sigma[0], satiete_mu[0], satiete_sigma[0], vision_mu[0], vision_sigma[0])
         m.draw_vision = print_vision[0]
+        minos_list_id.append(i)
+        minos_list_faim.append([m.jauge_faim])
         minos_list.append(m)
 while running:
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            
             running = False
 
     
     for mino in minos_list:
         mino.update()
         d.draw_mino(mino)
+        
+        minos_list_faim[mino.id].append(mino.jauge_faim)
         for f in food_list:
             if f.to_destroy:
                 food_list.remove(f)
@@ -163,12 +174,11 @@ while running:
     
     d.draw_all_mino(minos_list)
     d.draw_all_food(food_list)
-    
+
     d.refresh()
     time.sleep(0.05)
     
-    
-
+graph.graph([range(len(minos_list_faim[0])), minos_list_faim[0]])
 
 pygame.quit()
 sys.exit()
