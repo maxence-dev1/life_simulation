@@ -1,0 +1,49 @@
+import pygame
+import pygame_menu
+
+pygame.init()
+surface = pygame.display.set_mode((640, 480))
+pygame.display.set_caption("Exemple Menu Pygame")
+
+# Variable pour stocker le pseudo
+player_name = [""]
+
+# Fonction appelée quand on clique sur "Jouer"
+def start_game():
+    print(f"Le jeu commence ! Pseudo : {player_name[0]}")
+
+# Fonction appelée quand on clique sur "Quitter"
+def quit_game():
+    pygame.quit()
+    exit()
+
+# Création du menu
+menu = pygame_menu.Menu(
+    height=480,
+    width=640,
+    title="Menu Principal",
+    theme=pygame_menu.themes.THEME_DARK
+)
+
+# Ajout d'un champ de texte pour le pseudo
+menu.add.text_input("Pseudo : ", default="", onchange=lambda value: player_name.__setitem__(0, value))
+
+# Boutons
+menu.add.button("Jouer", start_game)
+menu.add.button("Quitter", quit_game)
+
+# Boucle principale
+running = True
+while running:
+    surface.fill((0, 0, 0))
+
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Affiche le menu
+    menu.update(events)
+    menu.draw(surface)
+
+    pygame.display.flip()

@@ -1,1 +1,1 @@
-minos_list
+0

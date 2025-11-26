@@ -5,11 +5,12 @@ def dist(x1,y1, x2, y2):
     return math.sqrt((x2-x1)**2 + (y2-y1)**2)
 
 class Mino:
-    def __init__(self, min_x, max_x, min_y, max_y, food_list):
-        self.resistance = random.gauss(1, 0.1)
-        self.vitesse = random.gauss(5, 0.6) 
-        self.satiete = random.gauss(1, 0.15)
-        self.vision = random.gauss(150, 50)
+    def __init__(self, id, min_x, max_x, min_y, max_y, food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma):
+        self.id = id
+        self.resistance = random.gauss(resistance_mu, resistance_sigma)
+        self.vitesse = random.gauss(vitesse_mu, vitesse_sigma) 
+        self.satiete = random.gauss(satiete_mu, satiete_sigma)
+        self.vision = random.gauss(vision_mu, vision_sigma)
         self.jauge_faim = 100 * self.resistance
         self.min_x = min_x
         self.max_x = max_x
@@ -75,7 +76,7 @@ class Mino:
                     y_to_go = f.y
                     food = f
         if x_to_go == None:
-            return -1,-1,-1,-1,-1
+            return -1,-1,-1,-1
         return dist_min, x_to_go, y_to_go, food
 
     def find_destination(self):
