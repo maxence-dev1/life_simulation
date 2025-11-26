@@ -14,12 +14,12 @@ pygame.display.set_caption("life simulation")
 
 
 food_list = []
-if (len(food_list)<10):
+if (len(food_list)<5):
         food_list.append(food.Food(random.randint(0, WIDTH), random.randint(0,HEIGHT)))
 #Initiation de draw : 
 d = draw.Draw(screen, WIDTH, HEIGHT)
 minos_list = []
-for i in range(10):
+for i in range(1):
         m = minos.Mino(0,WIDTH, 0, HEIGHT, food_list)
         minos_list.append(m)
 
@@ -41,7 +41,7 @@ while running:
               food_list.remove(f)
               del f
     
-    if (len(food_list)<10):
+    if (len(food_list)<5):
         food_list.append(food.Food(random.randint(0, WIDTH), random.randint(0,HEIGHT)))
     
     d.print_background()

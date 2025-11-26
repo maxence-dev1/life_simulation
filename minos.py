@@ -24,6 +24,7 @@ class Mino:
         self.destinationx = None
         self.destinationy = None
         self.find_destination()
+        self.draw_vision = True
 
         
 
@@ -36,14 +37,13 @@ class Mino:
     def update(self):
         """Actualise entierement un mino"""
         if not self.mort : 
-            print(self.vision)
             self.go_to_destination()
             self.update_jauge_faim()
             self.is_on_food()
 
     def is_on_food(self):
         for f in self.food_list:
-            if self.x<=f.x<=self.x + self.width   and self.y<=f.y<=self.y + self.height:
+            if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height):
                 f.to_destroy = True
                 self.jauge_faim += 50
 
@@ -59,15 +59,13 @@ class Mino:
 
     def find_random_destination(self):
         """Trouve une nouvelle destination aléatoire ou aller"""
+        print("go to random")
         self.destinationx = random.randint(self.min_x, self.max_x)
         self.destinationy = random.randint(self.min_y, self.max_y)
 
-    def find_destination(self):
-        """Trouve une nouvelle destination de nourriture ou aller"""
+
+    def get_closer_food(self):
         dist_min = 9999
-        x_to_go = None
-        y_to_go = None
-        food = None
         for f in self.food_list:
             distance = dist(self.x, self.y, f.x, f.y)
             if distance<dist_min:
@@ -75,6 +73,15 @@ class Mino:
                 x_to_go = f.x
                 y_to_go = f.y
                 food = f
+        return dist_min, x_to_go, y_to_go, food
+
+    def find_destination(self):
+        """Trouve une nouvelle destination de nourriture ou aller"""
+        dist_min = 9999
+        x_to_go = None
+        y_to_go = None
+        food = None
+        _, x_to_go, y_to_go, food = self.get_closer_food()
         if x_to_go== None or self.vision < dist_min :
             self.find_random_destination()
             return
@@ -87,11 +94,18 @@ class Mino:
         """Avance vers la destination"""
         self.middle_x = self.x + self.width/2
         self.middle_y = self.y + self.height/2
-        if self.destinationx-5 <=self.x <= self.destinationx+5 and self.destinationy-5 <= self.y <= self.destinationy+5:
+        if self.destinationx-5 <=self.x <= self.destinationx+5 and self.destinationy-5 <= self.y <= self.destinationy+5: #Si il atteind la destination
             if self.destination_food is not None:
                 self.destination_food.to_destroy = True
             self.find_destination()
-      
+        
+        dist,x_to_go,y_to_go,food = self.get_closer_food()
+        if (dist<self.vision): #Vérifie toujours qu'il n'y a pas de nourriture plus pret
+            self.destinationx = x_to_go
+            self.destinationy = y_to_go
+            self.destination_food = food
+
+
         if self.destinationx-5 <=self.x <= self.destinationx+5 : 
             pass
         elif self.destinationx > self.x:
