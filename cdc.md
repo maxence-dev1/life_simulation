@@ -9,7 +9,7 @@ Il y aura plusieurs version, chaque version sera meilleure et plus poussée que 
 L'objectif de ce projet va être de pouvoir acquérir et mettre en oeuvre plusieurs compétences. 
 - Architecture globale d'un projet
 - Développement logiciel  
-- POOv
+- POO
 - Optimisation 
 - Récupération des données
 - Netoyage et interfaçage

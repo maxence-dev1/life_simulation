@@ -8,7 +8,7 @@ class Mino:
     def __init__(self, min_x, max_x, min_y, max_y, food_list):
         self.resistance = random.gauss(1, 0.1)
         self.vitesse = random.gauss(5, 0.6) 
-        self.satiete = random.gauss(1, 0.6)
+        self.satiete = random.gauss(1, 0.15)
         self.vision = random.gauss(150, 50)
         self.jauge_faim = 100 * self.resistance
         self.min_x = min_x
@@ -43,9 +43,9 @@ class Mino:
 
     def is_on_food(self):
         for f in self.food_list:
-            if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height):
+            if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height) and not f.to_destroy:
                 f.to_destroy = True
-                self.jauge_faim += 50
+                self.jauge_faim += 30*self.satiete
 
     def update_jauge_faim(self):
         """Actualise la jauge de faim"""
@@ -59,20 +59,23 @@ class Mino:
 
     def find_random_destination(self):
         """Trouve une nouvelle destination aléatoire ou aller"""
-        print("go to random")
         self.destinationx = random.randint(self.min_x, self.max_x)
         self.destinationy = random.randint(self.min_y, self.max_y)
 
 
     def get_closer_food(self):
         dist_min = 9999
+        x_to_go = None
         for f in self.food_list:
-            distance = dist(self.x, self.y, f.x, f.y)
-            if distance<dist_min:
-                dist_min = distance
-                x_to_go = f.x
-                y_to_go = f.y
-                food = f
+            if not f.to_destroy:
+                distance = dist(self.x, self.y, f.x, f.y)
+                if distance<dist_min:
+                    dist_min = distance
+                    x_to_go = f.x
+                    y_to_go = f.y
+                    food = f
+        if x_to_go == None:
+            return -1,-1,-1,-1,-1
         return dist_min, x_to_go, y_to_go, food
 
     def find_destination(self):
@@ -85,9 +88,10 @@ class Mino:
         if x_to_go== None or self.vision < dist_min :
             self.find_random_destination()
             return
-        self.destination_food = food
-        self.destinationx = x_to_go
-        self.destinationy = y_to_go
+        if x_to_go != -1:
+            self.destination_food = food
+            self.destinationx = x_to_go
+            self.destinationy = y_to_go
 
 
     def go_to_destination(self):
@@ -100,7 +104,7 @@ class Mino:
             self.find_destination()
         
         dist,x_to_go,y_to_go,food = self.get_closer_food()
-        if (dist<self.vision): #Vérifie toujours qu'il n'y a pas de nourriture plus pret
+        if (dist<self.vision and x_to_go != -1): #Vérifie toujours qu'il n'y a pas de nourriture plus pret
             self.destinationx = x_to_go
             self.destinationy = y_to_go
             self.destination_food = food
