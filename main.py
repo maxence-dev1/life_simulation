@@ -7,6 +7,7 @@ import random
 import food
 import pygame_menu
 import graph
+import pandas as pd
 
 pygame.init()
 
@@ -119,7 +120,7 @@ menu.add.text_input(
 
 
 #Listes pour faire les stats (actualisés à chaque frame)
-minos_list_id = [] #Stocke les ids de chaque mino
+minos_list_id = [] #Stocke les id et les attributs naturels de chaque mino
 minos_list_faim = [] #Stocke la satiete de chaque mino
 frame_list = []
 
@@ -146,7 +147,7 @@ minos_list = []
 for i in range(nb_minos[0]):
         m = minos.Mino(i,0,WIDTH, 0, HEIGHT, food_list,resistance_mu[0], resistance_sigma[0], vitesse_mu[0], vitesse_sigma[0], satiete_mu[0], satiete_sigma[0], vision_mu[0], vision_sigma[0])
         m.draw_vision = print_vision[0]
-        minos_list_id.append(i)
+        minos_list_id.append([i, m.resistance, m.vitesse, m.satiete, m.vision])
         minos_list_faim.append([m.jauge_faim])
         minos_list.append(m)
 while running:
@@ -178,7 +179,9 @@ while running:
     d.refresh()
     time.sleep(0.05)
     
-graph.graph([range(len(minos_list_faim[0])), minos_list_faim])
+#graph.graph([range(len(minos_list_faim[0])), minos_list_faim])
+df = pd.DataFrame(minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision"])
+graph.print_graph_stat_repartition(df["resistance"], df["vitesse"], df["satiete"], df["vision"])
 
 pygame.quit()
 sys.exit()

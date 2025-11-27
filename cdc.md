@@ -40,3 +40,7 @@ Les données seront enregistrées tout au long de la simulation, elles sont ensu
 Les données seront affichées via le fichier graph qui utilise la bibli matplotlib
 
 Pour le moment c'est assez rudimentaire mais cela devrait suffire à étudier un échantillon. 
+
+
+# But de la version finale
+Après X simulation, de l'analyse de donnée et du machin learning, créer le meilleur mino en fonction de l'environnement.
