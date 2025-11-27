@@ -178,7 +178,7 @@ while running:
     d.refresh()
     time.sleep(0.05)
     
-graph.graph([range(len(minos_list_faim[0])), minos_list_faim[0]])
+graph.graph([range(len(minos_list_faim[0])), minos_list_faim])
 
 pygame.quit()
 sys.exit()
