@@ -189,7 +189,10 @@ menu_graph = pygame_menu.Menu(
 menu_graph.add.label("menu graph titre")
 
 df = pd.DataFrame(minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision"])
-graph.print_graph_stat_repartition(df["resistance"], df["vitesse"], df["satiete"], df["vision"])
+# graph.print_graph_stat_repartition(df["resistance"], df["vitesse"], df["satiete"], df["vision"])
+# graph.print_graph(minos_list_faim)
+graph.menu_statistique(df["resistance"], df["vitesse"], df["satiete"], df["vision"], minos_list_faim)
+
 while show_graph:
     screen.fill((0,0,0))
     events = pygame.event.get()
