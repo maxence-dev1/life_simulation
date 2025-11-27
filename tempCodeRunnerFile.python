@@ -1,17 +1,67 @@
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
+import random
 
-# Exemple de données
-x = [1, 2, 3, 4, 5]
-y = [2, 3, 5, 7, 11]
+# Données fictives
+resistance_data = [random.randint(50,150) for _ in range(100)]
+vitesse_data = [random.randint(20,100) for _ in range(100)]
+satiete_data = [random.randint(0,100) for _ in range(100)]
+vision_data = [random.randint(50,200) for _ in range(100)]
 
-# Créer le graphique
-plt.plot(x, y, marker='o', linestyle='-', color='blue', label="y = f(x)")
+# Création de la figure
+fig, ax = plt.subplots()
+plt.subplots_adjust(bottom=0.2)  # espace pour les boutons
 
-# Ajouter titre et labels
-plt.title("Exemple de graphique")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.legend()
+# Axe pour le graphe
+graph_ax = plt.gca()
 
-# Afficher
+# Fonctions pour les boutons
+def show_resistance(event):
+    graph_ax.clear()
+    graph_ax.hist(resistance_data, bins='auto', color='red', alpha=0.7)
+    graph_ax.set_title("Résistance")
+    graph_ax.set_xlabel("Valeurs")
+    graph_ax.set_ylabel("Fréquence")
+    plt.draw()
+
+def show_vitesse(event):
+    graph_ax.clear()
+    graph_ax.hist(vitesse_data, bins='auto', color='blue', alpha=0.7)
+    graph_ax.set_title("Vitesse")
+    graph_ax.set_xlabel("Valeurs")
+    graph_ax.set_ylabel("Fréquence")
+    plt.draw()
+
+def show_satiete(event):
+    graph_ax.clear()
+    graph_ax.hist(satiete_data, bins='auto', color='green', alpha=0.7)
+    graph_ax.set_title("Satiété")
+    graph_ax.set_xlabel("Valeurs")
+    graph_ax.set_ylabel("Fréquence")
+    plt.draw()
+
+def show_vision(event):
+    graph_ax.clear()
+    graph_ax.hist(vision_data, bins='auto', color='orange', alpha=0.7)
+    graph_ax.set_title("Vision")
+    graph_ax.set_xlabel("Valeurs")
+    graph_ax.set_ylabel("Fréquence")
+    plt.draw()
+
+# Création des boutons
+ax_res = plt.axes([0.1, 0.05, 0.15, 0.075])  # [left, bottom, width, height]
+ax_vit = plt.axes([0.3, 0.05, 0.15, 0.075])
+ax_sat = plt.axes([0.5, 0.05, 0.15, 0.075])
+ax_vis = plt.axes([0.7, 0.05, 0.15, 0.075])
+
+btn_res = Button(ax_res, "Résistance")
+btn_vit = Button(ax_vit, "Vitesse")
+btn_sat = Button(ax_sat, "Satiété")
+btn_vis = Button(ax_vis, "Vision")
+
+btn_res.on_clicked(show_resistance)
+btn_vit.on_clicked(show_vitesse)
+btn_sat.on_clicked(show_satiete)
+btn_vis.on_clicked(show_vision)
+
 plt.show()

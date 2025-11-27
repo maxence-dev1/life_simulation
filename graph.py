@@ -1,39 +1,45 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.widgets import Button
 
-fig, ax = plt.subplots(2, 2, figsize=(10, 8))
-fig.suptitle("Répartition des attributs", fontsize=16)
-def histogramme(i, j, data, titre="Histogramme sans titre"):
-    ax[i,j].hist(data, bins="auto", alpha=0.7, edgecolor="black")
-    ax[i,j].set_title(titre)
-    ax[i,j].set_xlabel("Valeurs")
-    ax[i,j].set_ylabel("Fréquence")
+# Création de la figure
+fig, ax = plt.subplots()
+plt.subplots_adjust(bottom=0.22)  # espace pour les boutons
 
-def graph(data):
-    x = data[0]          # Les frames
-    y_values = data[1]   # Liste des valeurs pour chaque mino
-    
-    colors = cm.tab10    # Palette de couleurs
+# Axe pour le graphe
+graph_ax = plt.gca()
 
-    for idx, y in enumerate(y_values):
-        ax[0,1].plot(
-            x, y, 
-            linewidth=1,
-            alpha=0.8,
-            color=colors(idx % 10),
-            label=f"Mino {idx+1}"
-        )
+def histogramme(data, titre="Histogramme sans titre", color = "blue"):
+    graph_ax.clear()
+    graph_ax.hist(data, bins="auto", alpha=0.7, edgecolor="black", color = color)
+    graph_ax.set_title(titre)
+    graph_ax.set_xlabel("Valeurs")
+    graph_ax.set_ylabel("Fréquence")
+    plt.draw()
 
-    ax[0,1].set_title("Évolution de la jauge faim")
-    ax[0,1].set_xlabel("Frame")
-    ax[0,1].set_ylabel("Jauge faim")
-    ax[0,1].legend()
+
+
 
 # 👉 Toujours à faire une seule fois à la fin
 def print_graph_stat_repartition(resistance, vitesse, satiete, vision):
-    histogramme(0,0,resistance, "resistance")
-    histogramme(0,1,vitesse, "vitesse")
-    histogramme(1,0,satiete, "satiete")
-    histogramme(1,1,vision, "vision")
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    
+    # Création des boutons
+    ax_res = plt.axes([0.1, 0.05, 0.15, 0.075])  # [left, bottom, width, height]
+    ax_vit = plt.axes([0.3, 0.05, 0.15, 0.075])
+    ax_sat = plt.axes([0.5, 0.05, 0.15, 0.075])
+    ax_vis = plt.axes([0.7, 0.05, 0.15, 0.075])
+
+    btn_res = Button(ax_res, "Résistance")
+    btn_vit = Button(ax_vit, "Vitesse")
+    btn_sat = Button(ax_sat, "Satiété")
+    btn_vis = Button(ax_vis, "Vision")
+
+    histogramme(resistance, "resistance", "blue")
+
+    btn_res.on_clicked(lambda event: histogramme(resistance, "resistance", "blue"))
+    btn_vit.on_clicked(lambda event: histogramme(vitesse, "Vitesse", "red"))
+    btn_sat.on_clicked(lambda event: histogramme(satiete, "Satiete", "yellow"))
+    btn_vis.on_clicked(lambda event: histogramme(vision, "vition", "grey"))
+
     plt.show()
+

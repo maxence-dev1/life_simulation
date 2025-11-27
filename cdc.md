@@ -35,6 +35,8 @@ L'utilisateur aura un interface où il choisira les paramètres de sa simulation
 ### Liste des données récoltées
 Les données seront enregistrées tout au long de la simulation, elles sont ensuites envoyées vers graph.py pour les graphiques.
 - évolution de la jauge de faim de chaque mino
+- Répartition des characteristiques
+- 
 
 ### Affichage des données
 Les données seront affichées via le fichier graph qui utilise la bibli matplotlib

@@ -16,7 +16,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("life simulation")
 
 print_vision = [False]
-nb_minos = [10]
+nb_minos = [1000]
 nb_food = [5]
 resistance_mu = [1]
 resistance_sigma = [0.1]
@@ -32,6 +32,7 @@ vision_sigma = [40]
 #___________________________________________
 state_menu = True
 running = False
+show_graph = False
 def start():
     global state_menu 
     global running 
@@ -125,13 +126,12 @@ minos_list_faim = [] #Stocke la satiete de chaque mino
 frame_list = []
 
 
-state_menu = True
 while state_menu:
     screen.fill((0,0,0))
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
-            running = False
+            state_menu = False
 
     menu.update(events)
     menu.draw(screen)
@@ -154,7 +154,7 @@ while running:
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            
+            show_graph = True
             running = False
 
     
@@ -178,10 +178,29 @@ while running:
 
     d.refresh()
     time.sleep(0.05)
-    
-#graph.graph([range(len(minos_list_faim[0])), minos_list_faim])
+
+menu_graph = pygame_menu.Menu(
+    width=WIDTH,
+    height=HEIGHT,
+    title="Menu Graphiques",
+    theme=pygame_menu.themes.THEME_DARK
+)
+
+menu_graph.add.label("menu graph titre")
+
 df = pd.DataFrame(minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision"])
 graph.print_graph_stat_repartition(df["resistance"], df["vitesse"], df["satiete"], df["vision"])
+while show_graph:
+    screen.fill((0,0,0))
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            show_graph = False
+
+    menu_graph.update(events)
+    menu_graph.draw(screen)
+    pygame.display.flip()
+
 
 pygame.quit()
 sys.exit()
