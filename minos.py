@@ -20,12 +20,14 @@ class Mino:
         self.y = random.randint(min_y, max_y)
         self.color = (0 + int(255 * (1 - (1/(1+math.exp(-self.jauge_faim))))),0 + int(255 * ((1/(1+math.exp(-self.jauge_faim))))),0)
         self.mort = False
+        self.to_clear = False
         self.food_list = food_list
         self.destination_food = None
         self.destinationx = None
         self.destinationy = None
         self.find_destination()
         self.draw_vision = True
+        self.time_lived = None
 
         
 
@@ -35,25 +37,32 @@ class Mino:
         
 
     
-    def update(self):
+    def update(self, nb_frame):
         """Actualise entierement un mino"""
         if not self.mort : 
+            self.time_lived = nb_frame
             self.go_to_destination()
             self.update_jauge_faim()
             self.is_on_food()
+        else :
+            self.color = ((self.color[0]*0.96,self.color[1]*0.96,self.color[2]*0.96))
+            if (self.color[0]<1):
+                self.to_clear = True
 
     def is_on_food(self):
         for f in self.food_list:
             if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height) and not f.to_destroy:
                 f.to_destroy = True
-                self.jauge_faim += 30*self.satiete
+                if self.jauge_faim + 30*self.satiete <= self.resistance*150:
+                    self.jauge_faim += 30*self.satiete
 
     def update_jauge_faim(self):
         """Actualise la jauge de faim"""
         self.jauge_faim -= 0.5
         if self.jauge_faim <= 0:
             self.mort = True
-            self.color = (0,0,0)
+            
+            
         else :
             val = max(0, min(1, self.jauge_faim / 100 * self.resistance))
             self.color = (int(255 * (1 - val)), int(255 * val), 0)

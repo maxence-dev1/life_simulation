@@ -32,6 +32,8 @@ Chacun selectionne un point sur l'écran et essaie de s'y rendre. Quand il y est
 ### Utilisation : 
 L'utilisateur aura un interface où il choisira les paramètres de sa simulation (nombre de minos, esperence de la vitesse...). Il aura ensuite accès à la simulation ou il pourra accelerer le temps (verifier qu'on reste à un certain fps), il y aura ensuite les graphiques disponibles.
 
+
+
 ### Liste des données récoltées
 Les données seront enregistrées tout au long de la simulation, elles sont ensuites envoyées vers graph.py pour les graphiques.
 - évolution de la jauge de faim de chaque mino
@@ -46,3 +48,7 @@ Pour le moment c'est assez rudimentaire mais cela devrait suffire à étudier un
 
 # But de la version finale
 Après X simulation, de l'analyse de donnée et du machin learning, créer le meilleur mino en fonction de l'environnement.
+
+
+# Divers : 
+La fluidité de la simulation n'impacte pas la récolte des données. Les calculs sont fait pour chaque frame. Il n'y a donc aucun problème à faire spwaner beaucoup de minos et que ça lag.

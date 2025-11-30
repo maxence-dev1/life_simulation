@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.widgets import Button
+import numpy
 
 # Création de la figure
 fig, ax = plt.subplots()
@@ -10,7 +11,7 @@ plt.subplots_adjust(bottom=0.22)  # espace pour les boutons
 graph_ax = None
 
 def histogramme(data, titre="Histogramme sans titre", color = "blue"):
-    graph_ax.clear()
+    graph_ax.cla()
     graph_ax.hist(data, bins="auto", alpha=0.7, edgecolor="black", color = color)
     graph_ax.set_title(titre)
     graph_ax.set_xlabel("Valeurs")
@@ -18,23 +19,16 @@ def histogramme(data, titre="Histogramme sans titre", color = "blue"):
     plt.draw()
 
 def graph(data, titre = "graphique sans titre"):
-    graph_ax.clear()
-    for d in data:
-        graph_ax.plot( range(len(data[0])), d)
+    graph_ax.cla()
+    d = numpy.array(data)
+    graph_ax.plot(d.T, alpha=0.3)
     graph_ax.set_title(titre)
     graph_ax.set_xlabel("Frames")
     graph_ax.set_ylabel("Jauge nourriture")
-
-    
+        
     plt.draw()
     
 
-
-
-
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Button
-import matplotlib.cm as cm
 
 plt.close("all")
 
@@ -62,18 +56,17 @@ def show_faim(event):
 
 def menu_statistique(resistance, vitesse, satiete, vision, food_data):
 
-    global global_resistance, global_vitesse, global_satiete, global_vision, global_food_data
+    global global_resistance, global_vitesse, global_satiete, global_vision, global_food_data, graph_ax
     global_resistance = resistance
     global_vitesse = vitesse
     global_satiete = satiete
     global_vision = vision
     global_food_data = food_data
 
-    fig, ax = plt.subplots()
+    fig, graph_ax = plt.subplots()
     plt.subplots_adjust(bottom=0.35)
 
-    global graph_ax
-    graph_ax = fig.add_subplot(111)  # crée un axe propre
+    
 
     graph_ax.set_title("Choisissez un graphique ci-dessous")
 
@@ -103,3 +96,16 @@ def menu_statistique(resistance, vitesse, satiete, vision, food_data):
 
     plt.show()
 
+
+def histogramme_nb_frame(resistance, vitesse, satiete, vision, time_lived, titre="Histogramme"):
+    plt.figure()
+    plt.scatter(resistance, time_lived, color="blue", alpha=0.7, label = "resistance")
+    plt.scatter(vitesse, time_lived, color="red", alpha=0.7, label = "vitesse")
+    plt.scatter(satiete, time_lived, color="green", alpha=0.7, label = "satiete")
+    plt.scatter(vision, time_lived, color="grey", alpha=0.7, label = "vision")
+    plt.title(titre)
+    plt.xlabel("Résistance")
+    plt.ylabel("Temps vécu")
+    plt.grid(True)
+    plt.legend()
+    plt.show()

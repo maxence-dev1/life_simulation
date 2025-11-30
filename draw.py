@@ -35,10 +35,11 @@ class Draw():
 
     def draw_mino(self, mino):
         """Affiche un mino"""
-        pygame.draw.rect(self.screen, (mino.color[0]*0.5,mino.color[1]*0.5,mino.color[2]*0.5), (mino.x, mino.y, mino.width, mino.height), 6, border_radius=5)
-        pygame.draw.rect(self.screen, mino.color, (mino.x+4, mino.y+4, mino.width-8, mino.height-8), border_radius=5)
-        if mino.draw_vision and not mino.mort : 
-            pygame.draw.circle(self.screen, "grey", (mino.middle_x, mino.middle_y), mino.vision, 1)
+        if not mino.to_clear : 
+            pygame.draw.rect(self.screen, (mino.color[0]*0.5,mino.color[1]*0.5,mino.color[2]*0.5), (mino.x, mino.y, mino.width, mino.height), 6, border_radius=5)
+            pygame.draw.rect(self.screen, mino.color, (mino.x+4, mino.y+4, mino.width-8, mino.height-8), border_radius=5)
+            if mino.draw_vision and not mino.mort : 
+                pygame.draw.circle(self.screen, "grey", (mino.middle_x, mino.middle_y), mino.vision, 1)
 
     def draw_all_mino(self, liste_minos):
         """affiche tous les minos"""
