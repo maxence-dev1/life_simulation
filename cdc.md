@@ -38,7 +38,8 @@ L'utilisateur aura un interface où il choisira les paramètres de sa simulation
 Les données seront enregistrées tout au long de la simulation, elles sont ensuites envoyées vers graph.py pour les graphiques.
 - évolution de la jauge de faim de chaque mino
 - Répartition des characteristiques
-- 
+- Temps de survie en fonction des charactéristiques
+- quelles sont les stats des 5 meilleurs et des 5 plus nul
 
 ### Affichage des données
 Les données seront affichées via le fichier graph qui utilise la bibli matplotlib
