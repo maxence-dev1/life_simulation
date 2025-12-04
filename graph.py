@@ -163,13 +163,11 @@ def show_best(event):
 def show_worst(event):
     histogramme_best_worst([global_worst["resistance_normee"], global_worst["vitesse_normee"], global_worst["satiete_normee"], global_worst["vision_normee"]], "Profil du PIRE")
 
-# --- 6. INTERFACE ET MENU ---
 
-def menu_statistique(df, resistance, vitesse, satiete, vision, food_data, resistance_norme, vitesse_norme, satiete_norme, vision_norme, time_lived):
+def menu_statistique(df, food_data):
 
     global global_resistance, global_vitesse, global_satiete, global_vision, global_food_data, graph_ax, global_time_lived, global_resistance_norme, global_vitesse_norme, global_satiete_norme, global_vision_norme, global_best, global_worst, fig, btn_refs
     
-    # Assignation des données
     global_resistance = df["resistance"]
     global_vitesse = df["vitesse"]
     global_satiete = df["satiete"]

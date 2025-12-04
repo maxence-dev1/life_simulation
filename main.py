@@ -1,14 +1,8 @@
-import pygame
-import sys
-import draw
-import minos
-import time
-import random
-import food
-import pygame_menu
-import graph
+import pygame, sys, draw, minos, time, random, food, pygame_menu, graph, pygame_gui, numpy
 import pandas as pd
-import pygame_gui
+#5000 minos avec 0 food avant opti : afficher->1.13 sans afficher -> 9 sec
+#1000 minos avec 500 food avant opti : afficher->4.07 sans afficher -> 2.46 sec
+
 
 pygame.init()
 
@@ -138,7 +132,7 @@ menu.add.text_input(
 
 
 #Listes pour faire les stats (actualisés à chaque frame)
-minos_list_id = [] #Stocke les id et les attributs naturels de chaque mino
+
 minos_list_faim = [] #Stocke la satiete de chaque mino
 frame_list = []
 
@@ -201,20 +195,28 @@ if (len(food_list)<nb_food[0] ):
 #Initiation de draw : 
 d = draw.Draw(screen, WIDTH, HEIGHT)
 minos_list = []
+
+
+minos_list_id = numpy.zeros((nb_minos[0],6), dtype=numpy.int32) #Stocke les id et les attributs naturels de chaque mino
 for i in range(nb_minos[0]-1):
         m = minos.Mino(i,0,WIDTH, 0, HEIGHT, food_list,resistance_mu[0], resistance_sigma[0], vitesse_mu[0], vitesse_sigma[0], satiete_mu[0], satiete_sigma[0], vision_mu[0], vision_sigma[0])
         m.draw_vision = print_vision[0]
-        minos_list_id.append([i, m.resistance, m.vitesse, m.satiete, m.vision, 0])
+        minos_list_id[i,0] = i
+        minos_list_id[i,1] = m.resistance
+        minos_list_id[i,2] = m.vitesse
+        minos_list_id[i,3] = m.satiete
+        minos_list_id[i,4] = m.vision
+        minos_list_id[i,5] = 0
         minos_list_faim.append([m.jauge_faim])
         minos_list.append(m)
-# m = minos.Mino(i+1,0,WIDTH, 0, HEIGHT, food_list,5, 0, 10, 0, 5, 0, 500, 0)
-# minos_list_id.append([i+1, m.resistance, m.vitesse, m.satiete, m.vision, 0])
-# minos_list_faim.append([m.jauge_faim])
-# minos_list.append(m)
+
+print(minos_list_id)
 text_pas_affichage = pygame.font.Font(None, 36).render("Simulation en cours, veuillez patienter", True, "white")
 one = True
 nb_frame = 0
 old_nb_frame = 0
+
+
 while running:
     time_delta = clock.tick(fps)/1000
     nb_frame+=1
@@ -228,7 +230,6 @@ while running:
         if event.type == pygame.KEYDOWN:
              if event.key == pygame.K_ESCAPE:
                   running = False
-        
         manager.process_events(event)
         if (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == button_more_fps):
             more_fps()
@@ -243,13 +244,10 @@ while running:
         mino.update(nb_frame)
         if afficher_jeu[0]:
             d.draw_mino(mino)
-        minos_list_id[mino.id][5] = mino.time_lived
+        minos_list_id[mino.id,5] = mino.time_lived
         
         minos_list_faim[mino.id].append(mino.jauge_faim)
-        for f in food_list:
-            if f.to_destroy:
-                food_list.remove(f)
-                del f
+        food_list = [f for f in food_list if not f.destroy]
         
     while (len(food_list)<nb_food[0]):
         food_list.append(food.Food(random.randint(0, WIDTH), random.randint(0,HEIGHT)))
@@ -294,8 +292,7 @@ a = min(df["vision"])
 b = max(df["vision"])
 df["vision_normee"] = df["vision"].apply(lambda x: normaliser(x, a, b))
 
-graph.menu_statistique(df, df["resistance"], df["vitesse"], df["satiete"], df["vision"], minos_list_faim, df["resistance_normee"], df["vitesse_normee"], df["satiete_normee"], df["vision_normee"], df["temps vécu"])
-
+graph.menu_statistique(df, minos_list_faim)
 
 
 pygame.quit()
