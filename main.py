@@ -30,15 +30,15 @@ for i in range(10):
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 manager = pygame_gui.UIManager((WIDTH,HEIGHT), theme_path='theme.json')
 clock = pygame.time.Clock()
-fps = -1
+fps = 60
 
 pygame.display.set_caption("life simulation")
 pygame.event.pump()
 
 print_vision = [False]
 afficher_jeu = [True]
-nb_minos = [1000]
-nb_food = [500]
+nb_minos = [10]
+nb_food = [3]
 resistance_mu = [2]
 resistance_sigma = [0.5]
 vitesse_mu = [5]
@@ -269,35 +269,36 @@ while running:
     for mino in minos_list:
         if mino.mort:
              minos_dead+=1
+        cases_chevauchée = []
+        nw = (mino.y//100, mino.x//100)
+        if (nw not in cases_chevauchée):
+            cases_chevauchée.append(nw)
+        ne = ((mino.y + mino.width)//100, (mino.x)//100)
+        if (ne not in cases_chevauchée):
+            cases_chevauchée.append(ne)
+        sw = (mino.y//100, (mino.x+mino.height)//100)
+        if (sw not in cases_chevauchée):
+            cases_chevauchée.append(sw)
+        se = ((mino.y+ mino.width)//100, (mino.x+mino.height)//100)
+        if (se not in cases_chevauchée):
+            cases_chevauchée.append(se)
+        food_list_to_see_collisions = []
+        for ligne, colonne in cases_chevauchée:
+            if 0 <= ligne < grille.shape[0] and 0 <= colonne < grille.shape[1]:
+                food_list_to_see_collisions.append(grille[int(ligne), int(colonne)])
+        food_neighbors_flat = [f for sublist in food_list_to_see_collisions for f in sublist]
         if afficher_jeu[0]:
             d.draw_mino(mino)
             #Mtn il faut trouver quel(s) cases envoyer au minos
-            cases_chevauchée = []
-            nw = (mino.y//100, mino.x//100)
-            if (nw not in cases_chevauchée):
-                 cases_chevauchée.append(nw)
-            ne = ((mino.y + mino.width)//100, (mino.x)//100)
-            if (ne not in cases_chevauchée):
-                 cases_chevauchée.append(ne)
-            sw = (mino.y//100, (mino.x+mino.height)//100)
-            if (sw not in cases_chevauchée):
-                 cases_chevauchée.append(sw)
-            se = ((mino.y+ mino.width)//100, (mino.x+mino.height)//100)
-            if (se not in cases_chevauchée):
-                 cases_chevauchée.append(se)
-            food_list_to_see_collisions = []
-            for ligne, colonne in cases_chevauchée:
-                if 0 <= ligne < grille.shape[0] and 0 <= colonne < grille.shape[1]:
-                    food_list_to_see_collisions.append(grille[int(ligne), int(colonne)])
-                  
-            mino.update(nb_frame, food_list, food_list_to_see_collisions)
+                
+            mino.update(nb_frame, food_list, food_neighbors_flat)
         else : 
-             mino.update_speed(nb_frame, food_list)
+             mino.update_speed(nb_frame, food_list, food_list_to_see_collisions)
         minos_list_id[mino.id,5] = mino.time_lived
         minos_list_faim[mino.id].append(mino.jauge_faim)
         
     
-    #print("minos morts : ", minos_dead,"/", nb_minos[0]-1)
+    print("minos morts : ", minos_dead,"/", nb_minos[0]-1)
     if minos_dead == nb_minos[0]-1:
          running = False
     if afficher_jeu[0]:

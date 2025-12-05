@@ -55,9 +55,11 @@ class Mino:
             if (self.color[0]<1):
                 self.to_clear = True
     
-    def update_speed(self, nb_frame):
+    def update_speed(self, nb_frame, food_list, food_list_to_see_collisions):
         """Actualise un mino sauf les fonctions visuelles"""
         if not self.mort :
+            self.food_list_to_see_collisions = food_list_to_see_collisions
+            self.food_list = food_list
             self.time_lived = nb_frame
             self.go_to_destination()
             self.update_jauge_faim()
@@ -65,8 +67,7 @@ class Mino:
 
     def is_on_food(self):
         #On vérifie uniquement les collisions avec les food dont il chevauche les cases
-        for l in self.food_list_to_see_collisions:
-            for f in l:
+        for f in self.food_list_to_see_collisions:
                 if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height) and not f.to_destroy:
                     f.to_destroy = True
                     if self.jauge_faim + 30*self.satiete <= self.resistance*150:
@@ -87,10 +88,10 @@ class Mino:
         self.destinationy = random.randint(self.min_y, self.max_y)
 
 
-    def get_closer_food(self):
+    def get_closer_food(self, list_to_search):
         dist_min = 9999
         x_to_go = None
-        for f in self.food_list:
+        for f in list_to_search:
             if not f.to_destroy:
                 distance = dist(self.x, self.y, f.x, f.y)
                 if distance<dist_min:
@@ -99,23 +100,29 @@ class Mino:
                     y_to_go = f.y
                     food = f
         if x_to_go == None:
-            return -1,-1,-1,-1
+            return -1,-1,-1,None
         return dist_min, x_to_go, y_to_go, food
 
-    def find_destination(self):
+
+    def find_destination(self, do_random = True):
         """Trouve une nouvelle destination de nourriture ou aller"""
-        dist_min = 9999
-        x_to_go = None
-        y_to_go = None
-        food = None
-        _, x_to_go, y_to_go, food = self.get_closer_food()
-        if x_to_go== None or self.vision < dist_min :
-            self.find_random_destination()
+        #On regarde d'abord dans le voisinage
+        dist_min_local, x_local, y_local, food_local = self.get_closer_food(self.food_list_to_see_collisions)
+        if food_local is not None and dist_min_local <= self.vision:
+            self.destination_food = food_local
+            self.destinationx = x_local
+            self.destinationy = y_local
             return
-        if x_to_go != -1:
-            self.destination_food = food
-            self.destinationx = x_to_go
-            self.destinationy = y_to_go
+
+        #Si il n'y a pas de food dans le voisinage
+        dist_min_global, x_global, y_global, food_global = self.get_closer_food(self.food_list)
+        if food_global is not None and dist_min_global <= self.vision:
+            self.destination_food = food_global
+            self.destinationx = x_global
+            self.destinationy = y_global
+            return
+        if do_random:
+            self.find_random_destination()
 
 
     def go_to_destination(self):
@@ -126,13 +133,9 @@ class Mino:
             if self.destination_food is not None:
                 self.destination_food.to_destroy = True
             self.find_destination()
-        
-        dist,x_to_go,y_to_go,food = self.get_closer_food()
-        if (dist<self.vision and x_to_go != -1): #Vérifie toujours qu'il n'y a pas de nourriture plus pret
-            self.destinationx = x_to_go
-            self.destinationy = y_to_go
-            self.destination_food = food
-
+        else :
+            if self.time_lived%10 ==0: #Il vérifie uniquement 1 frame sur 10 car c'est couteux
+                self.find_destination(False) # Pour vérifier si il trouve une autre nourriture plus pret
 
         if self.destinationx-5 <=self.x <= self.destinationx+5 : 
             pass
