@@ -1,8 +1,10 @@
 import pygame, sys, draw, minos, time, random, food, pygame_menu, graph, pygame_gui, numpy
 import pandas as pd
 #5000 minos avec 0 food avant opti : afficher->1.13 sans afficher -> 9 sec
-#1000 minos avec 500 food avant opti : afficher->4.07 sans afficher -> 2.46 min
+#1000 minos avec 500 food avant opti : afficher->4.07 sans afficher -> 2.46 min (variable car la simulation n'a jamais 0 food dépend donc des attributs des minos)
 
+#5000 minos avec 0 food apres opti : afficher->1.28 sans afficher -> 25 sec
+#1000 minos avec 500 food apres opti : afficher->1.32 sans afficher -> 37 sec
 
 pygame.init()
 
@@ -30,7 +32,7 @@ for i in range(10):
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 manager = pygame_gui.UIManager((WIDTH,HEIGHT), theme_path='theme.json')
 clock = pygame.time.Clock()
-fps = 60
+fps = -1
 
 pygame.display.set_caption("life simulation")
 pygame.event.pump()
@@ -293,7 +295,7 @@ while running:
                 
             mino.update(nb_frame, food_list, food_neighbors_flat)
         else : 
-             mino.update_speed(nb_frame, food_list, food_list_to_see_collisions)
+             mino.update_speed(nb_frame, food_list, food_neighbors_flat)
         minos_list_id[mino.id,5] = mino.time_lived
         minos_list_faim[mino.id].append(mino.jauge_faim)
         
