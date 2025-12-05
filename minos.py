@@ -21,25 +21,31 @@ class Mino:
         self.color = (0 + int(255 * (1 - (1/(1+math.exp(-self.jauge_faim))))),0 + int(255 * ((1/(1+math.exp(-self.jauge_faim))))),0)
         self.mort = False
         self.to_clear = False
-        self.food_list = food_list
+        self.food_list = []
+        self.food_list_to_see_collisions = []
         self.destination_food = None
         self.destinationx = None
         self.destinationy = None
         self.find_destination()
         self.draw_vision = True
-        self.time_lived = None
-
+        self.time_lived = 0
+        
         
 
         self.width = 50
         self.height = 50
+        self.middle_x = self.x + self.width/2
+        self.middle_y = self.y + self.height/2
 
         
 
     
-    def update(self, nb_frame):
+    def update(self, nb_frame, food_list, food_list_to_see_collisions):
         """Actualise entierement un mino"""
         if not self.mort : 
+            #print(f"food_list : {len(food_list)}, foo_list_to_see_collision : {len(food_list_to_see_collisions)}")
+            self.food_list_to_see_collisions = food_list_to_see_collisions
+            self.food_list = food_list
             self.time_lived = nb_frame
             self.go_to_destination()
             self.update_jauge_faim()
@@ -48,21 +54,29 @@ class Mino:
             self.color = ((self.color[0]*0.96,self.color[1]*0.96,self.color[2]*0.96))
             if (self.color[0]<1):
                 self.to_clear = True
+    
+    def update_speed(self, nb_frame):
+        """Actualise un mino sauf les fonctions visuelles"""
+        if not self.mort :
+            self.time_lived = nb_frame
+            self.go_to_destination()
+            self.update_jauge_faim()
+            self.is_on_food()
 
     def is_on_food(self):
-        for f in self.food_list:
-            if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height) and not f.to_destroy:
-                f.to_destroy = True
-                if self.jauge_faim + 30*self.satiete <= self.resistance*150:
-                    self.jauge_faim += 30*self.satiete
+        #On vérifie uniquement les collisions avec les food dont il chevauche les cases
+        for l in self.food_list_to_see_collisions:
+            for f in l:
+                if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height) and not f.to_destroy:
+                    f.to_destroy = True
+                    if self.jauge_faim + 30*self.satiete <= self.resistance*150:
+                        self.jauge_faim += 30*self.satiete
 
     def update_jauge_faim(self):
         """Actualise la jauge de faim"""
         self.jauge_faim -= 0.5
         if self.jauge_faim <= 0:
-            self.mort = True
-            
-            
+            self.mort = True         
         else :
             val = max(0, min(1, self.jauge_faim / 100 * self.resistance))
             self.color = (int(255 * (1 - val)), int(255 * val), 0)
