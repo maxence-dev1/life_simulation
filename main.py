@@ -32,15 +32,16 @@ for i in range(10):
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 manager = pygame_gui.UIManager((WIDTH,HEIGHT), theme_path='theme.json')
 clock = pygame.time.Clock()
-fps = -1
+
 
 pygame.display.set_caption("life simulation")
 pygame.event.pump()
 
 print_vision = [False]
 afficher_jeu = [True]
-nb_minos = [10]
-nb_food = [3]
+nb_minos = [2]
+size_minos = [30]
+nb_food = [20000]
 resistance_mu = [2]
 resistance_sigma = [0.5]
 vitesse_mu = [5]
@@ -50,6 +51,8 @@ satiete_sigma = [0.75]
 vision_mu = [150]
 vision_sigma = [120]
 
+print_grille = [False]
+fps = [-1]
 #___________________________________________
 #              Ecran démarrage
 #___________________________________________
@@ -77,6 +80,12 @@ menu.add.text_input(
     "nombre minos : ",
     default=str(nb_minos[0]),
     onchange=lambda value: nb_minos.__setitem__(0, int(value)if value else nb_minos)
+)
+
+menu.add.text_input(
+    "size minos : ",
+    default=str(size_minos[0]),
+    onchange=lambda value: size_minos.__setitem__(0, int(value)if value else nb_minos)
 )
 
 menu.add.text_input(
@@ -145,6 +154,24 @@ menu.add.text_input(
     onchange=lambda val: vision_sigma.__setitem__(0, float(val) if val else vision_sigma[0])
 )
 
+menu.add.label("_______________________________________________________________________________________________________________________________", "Dev panel_l1")
+menu.add.label("DEV TOOLS", "DEV TOOLS")
+menu.add.label("_______________________________________________________________________________________________________________________________", "Dev panel_l2")
+
+menu.add.toggle_switch(
+    title="Afficher grille :",
+    default=False,
+    # Correct : n'attend qu'un seul argument (value)
+    onchange=lambda value: print_grille.__setitem__(0, value),
+    width=60
+)
+
+menu.add.text_input(
+    "FPS : ", 
+    default=str(fps[0]), 
+    onchange=lambda val: fps.__setitem__(0, float(val) if val else vision_sigma[0])
+)
+
 
 
 #_______________________________________________________________________________________________________________________
@@ -175,7 +202,7 @@ button_less_fps = pygame_gui.elements.UIButton(
 
 label_fps = pygame_gui.elements.UILabel(
     relative_rect=pygame.Rect(50, 15, 90, 30),
-    text=f"FPS : {clock.get_fps():.1f}/{fps}", 
+    text=f"FPS : {clock.get_fps():.1f}/{fps[0]}", 
     manager=manager,
     container=frame_fps
 )
@@ -189,11 +216,11 @@ button_more_fps = pygame_gui.elements.UIButton(
 
 def more_fps():
     global fps
-    fps += 1
+    fps[0] += 1
 
 def less_fps():
     global fps
-    fps -= 1
+    fps[0] -= 1
 
 
 
@@ -220,7 +247,7 @@ minos_list = []
 
 minos_list_id = numpy.zeros((nb_minos[0],6), dtype=numpy.float64) #Stocke les id et les attributs naturels de chaque mino
 for i in range(nb_minos[0]-1):
-        m = minos.Mino(i,0,WIDTH, 0, HEIGHT, food_list,resistance_mu[0], resistance_sigma[0], vitesse_mu[0], vitesse_sigma[0], satiete_mu[0], satiete_sigma[0], vision_mu[0], vision_sigma[0])
+        m = minos.Mino(i,size_minos[0], 0,WIDTH, 0, HEIGHT, food_list,resistance_mu[0], resistance_sigma[0], vitesse_mu[0], vitesse_sigma[0], satiete_mu[0], satiete_sigma[0], vision_mu[0], vision_sigma[0])
         m.draw_vision = print_vision[0]
         minos_list_id[i,0] = i
         minos_list_id[i,1] = m.resistance
@@ -239,7 +266,7 @@ old_nb_frame = 0
 
 while running:
     #print(len(food_list))
-    time_delta = clock.tick(fps)/1000
+    time_delta = clock.tick(fps[0])/1000
     nb_frame+=1
     if nb_frame >= old_nb_frame + 50 and nb_food[0]>5 :
          nb_food[0]*=0.90
@@ -305,17 +332,18 @@ while running:
          running = False
     if afficher_jeu[0]:
         d.print_background()
-        # for i in range(20):
-        #      for j in range(10):
-        #           pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100+100, j*100)))
-        #           pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100, j*100+100)))
-        #           pygame.draw.line(screen, (255,0,255), (i*100+100, j*100), ((i*100+100, j*100+100)))
-        #           pygame.draw.line(screen, (255,0,255), (i*100, j*100+100), ((i*100+100, j*100+100)))
+        if print_grille[0]:
+             for i in range(20):
+                  for j in range(10):
+                       pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100+100, j*100)))
+                       pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100, j*100+100)))
+                       pygame.draw.line(screen, (255,0,255), (i*100+100, j*100), ((i*100+100, j*100+100)))
+                       pygame.draw.line(screen, (255,0,255), (i*100, j*100+100), ((i*100+100, j*100+100)))
         d.draw_all_mino(minos_list)
         d.draw_all_food(food_list)
         manager.update(time_delta)
         manager.draw_ui(screen)
-        label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{fps}")
+        label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{fps[0]}")
         d.refresh()
     
         

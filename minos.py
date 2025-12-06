@@ -5,7 +5,7 @@ def dist(x1,y1, x2, y2):
     return math.sqrt((x2-x1)**2 + (y2-y1)**2)
 
 class Mino:
-    def __init__(self, id, min_x, max_x, min_y, max_y, food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma):
+    def __init__(self, id,size, min_x, max_x, min_y, max_y, food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma):
         self.id = id
         self.resistance = random.gauss(resistance_mu, resistance_sigma)     
         self.vitesse = random.gauss(vitesse_mu, vitesse_sigma) 
@@ -32,8 +32,8 @@ class Mino:
         
         
 
-        self.width = 50
-        self.height = 50
+        self.width = size
+        self.height = size
         self.middle_x = self.x + self.width/2
         self.middle_y = self.y + self.height/2
 
