@@ -1,4 +1,4 @@
-import pygame, sys, draw, minos, time, random, food, pygame_menu, graph, pygame_gui, numpy
+import pygame, sys, draw, minos, time, random, food, pygame_menu, graph, pygame_gui, numpy, simulationconfig, simulationengine
 import pandas as pd
 #5000 minos avec 0 food avant opti : afficher->1.13 sans afficher -> 9 sec
 #1000 minos avec 500 food avant opti : afficher->4.07 sans afficher -> 2.46 min (variable car la simulation n'a jamais 0 food dépend donc des attributs des minos)
@@ -11,17 +11,6 @@ pygame.init()
 WIDTH = 1200
 HEIGHT = 800
 
-
-
-#Tracer grille
-# for i in range(20):
-#             for j in range(10):
-#                  pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100+100, j*100)))
-#                  pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100, j*100+100)))
-#                  pygame.draw.line(screen, (255,0,255), (i*100+100, j*100), ((i*100+100, j*100+100)))
-#                  pygame.draw.line(screen, (255,0,255), (i*100, j*100+100), ((i*100+100, j*100+100)))
-#                  pygame.display.flip()
-
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 manager = pygame_gui.UIManager((WIDTH,HEIGHT), theme_path='theme.json')
 clock = pygame.time.Clock()
@@ -29,158 +18,16 @@ clock = pygame.time.Clock()
 
 pygame.display.set_caption("life simulation")
 pygame.event.pump()
-full_screen = [False]
-print_vision = [False]
-afficher_jeu = [True]
-nb_minos = [2]
-size_minos = [30]
-nb_food = [10]
-resistance_mu = [2]
-resistance_sigma = [0.5]
-vitesse_mu = [5]
-vitesse_sigma = [1.5]
-satiete_mu = [1]
-satiete_sigma = [0.75]
-vision_mu = [150]
-vision_sigma = [120]
 
-print_grille = [False]
-fps = [-1]
-#___________________________________________
-#              Ecran démarrage
-#___________________________________________
-state_menu = True
-running = False
-show_graph = False
-def start():
-    global state_menu 
-    global running 
-    state_menu = False
-    running = True
+state_menu = [True] #Ici j'ai mis des listes afin de pouvoir modifier directement la variable à l'adresse depuis d'autres fonctions
+running = [False]
 
-
-menu = pygame_menu.Menu(
-    width=WIDTH,
-    height=HEIGHT,
-    title="Menu Principal",
-    theme=pygame_menu.themes.THEME_DARK
-)
-
-menu.add.button("Jouer", start)
-menu.add.button("Quitter", pygame_menu.events.EXIT)
-
-menu.add.toggle_switch(
-    title="Plein écran : ",
-    default=False,
-    # Correct : n'attend qu'un seul argument (value)
-    onchange=lambda value: full_screen.__setitem__(0, value),
-    width=60
-)
-
-menu.add.text_input(
-    "nombre minos : ",
-    default=str(nb_minos[0]),
-    onchange=lambda value: nb_minos.__setitem__(0, int(value)if value else nb_minos)
-)
-
-menu.add.text_input(
-    "size minos : ",
-    default=str(size_minos[0]),
-    onchange=lambda value: size_minos.__setitem__(0, int(value)if value else nb_minos)
-)
-
-menu.add.text_input(
-    "nombre food : ",
-    default=str(nb_food[0]),
-    onchange=lambda value: nb_food.__setitem__(0, int(value)if value else nb_food)
-)
-
-
-menu.add.toggle_switch(
-    title="Afficher vision :",
-    default=False,
-    # Correct : n'attend qu'un seul argument (value)
-    onchange=lambda value: print_vision.__setitem__(0, value),
-    width=60
-)
-
-menu.add.toggle_switch(
-    title="Afficher jeu (beaucoup moins de temps de simulation) :",
-    default=True,
-    # Correct : n'attend qu'un seul argument (value)
-    onchange=lambda value: afficher_jeu.__setitem__(0, value),
-    width=60
-)
-
-
-menu.add.text_input(
-    "Resistance µ : ", 
-    default=str(resistance_mu[0]), 
-    # Si 'val' est vide, on utilise la valeur actuelle de resistance_mu[0]. Sinon, on convertit l'entrée en float.
-    onchange=lambda val: resistance_mu.__setitem__(0, float(val) if val else resistance_mu[0])
-)
-menu.add.text_input(
-    "Resistance σ : ", 
-    default=str(resistance_sigma[0]), 
-    onchange=lambda val: resistance_sigma.__setitem__(0, float(val) if val else resistance_sigma[0])
-)
-menu.add.text_input(
-    "Vitesse µ : ", 
-    default=str(vitesse_mu[0]), 
-    onchange=lambda val: vitesse_mu.__setitem__(0, float(val) if val else vitesse_mu[0])
-)
-menu.add.text_input(
-    "Vitesse σ : ", 
-    default=str(vitesse_sigma[0]), 
-    onchange=lambda val: vitesse_sigma.__setitem__(0, float(val) if val else vitesse_sigma[0])
-)
-menu.add.text_input(
-    "Satiété µ : ", 
-    default=str(satiete_mu[0]), 
-    onchange=lambda val: satiete_mu.__setitem__(0, float(val) if val else satiete_mu[0])
-)
-menu.add.text_input(
-    "Satiété σ : ", 
-    default=str(satiete_sigma[0]), 
-    onchange=lambda val: satiete_sigma.__setitem__(0, float(val) if val else satiete_sigma[0])
-)
-menu.add.text_input(
-    "Vision µ : ", 
-    default=str(vision_mu[0]), 
-    onchange=lambda val: vision_mu.__setitem__(0, float(val) if val else vision_mu[0])
-)
-menu.add.text_input(
-    "Vision σ : ", 
-    default=str(vision_sigma[0]), 
-    onchange=lambda val: vision_sigma.__setitem__(0, float(val) if val else vision_sigma[0])
-)
-
-menu.add.label("_____________________________________________________________", "Dev panel_l1")
-menu.add.label("DEV TOOLS", "DEV TOOLS")
-menu.add.label("_____________________________________________________________", "Dev panel_l2")
-
-menu.add.toggle_switch(
-    title="Afficher grille :",
-    default=False,
-    # Correct : n'attend qu'un seul argument (value)
-    onchange=lambda value: print_grille.__setitem__(0, value),
-    width=60
-)
-
-menu.add.text_input(
-    "FPS : ", 
-    default=str(fps[0]), 
-    onchange=lambda val: fps.__setitem__(0, float(val) if val else vision_sigma[0])
-)
+config = simulationconfig.SimulationConfig(screen, state_menu, running)
 
 
 
-#_______________________________________________________________________________________________________________________
-#                 Le jeu
-#_______________________________________________________________________________________________________________________
 
 
-#Listes pour faire les stats (actualisés à chaque frame)
 
 minos_list_faim = [] #Stocke la satiete de chaque mino
 frame_list = []
@@ -203,7 +50,7 @@ button_less_fps = pygame_gui.elements.UIButton(
 
 label_fps = pygame_gui.elements.UILabel(
     relative_rect=pygame.Rect(50, 15, 90, 30),
-    text=f"FPS : {clock.get_fps():.1f}/{fps[0]}", 
+    text=f"FPS : {clock.get_fps():.1f}/{config.fps}", 
     manager=manager,
     container=frame_fps
 )
@@ -215,82 +62,53 @@ button_more_fps = pygame_gui.elements.UIButton(
     container=frame_fps
 )
 
-def more_fps():
-    global fps
-    fps[0] += 1
 
-def less_fps():
-    global fps
-    fps[0] -= 1
+
+config.init_all()
 
 
 
-
-while state_menu:
+while state_menu[0]:
     screen.fill((0,0,0))
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
-            state_menu = False
+            state_menu[0] = False
+    config.menu_update(events)
+    
+    
 
-    menu.update(events)
-    menu.draw(screen)
-    pygame.display.flip()
 
-
-if full_screen[0]: 
+if config.full_screen: 
     screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     WIDTH = pygame.display.Info().current_w
     HEIGHT = pygame.display.Info().current_h
 
 
-WIDTH_SQUARE = 100
-HEIGHT_SQUARE = 100
-
-nb_col = int(WIDTH / WIDTH_SQUARE)
-nb_row = int(HEIGHT / HEIGHT_SQUARE)
-
-grille = numpy.empty((nb_row,nb_col), dtype=object) #La grille qui contiendra la nourriture
-for i in range(nb_row):
-    for j in range(nb_col):
-         grille[i,j] = []     
-
-
-
-food_list = []
-if (len(food_list)<nb_food[0] ):
-        food_list.append(food.Food(random.randint(0, WIDTH-10), random.randint(0,HEIGHT-10)))
-#Initiation de draw : 
 d = draw.Draw(screen, WIDTH, HEIGHT)
-minos_list = []
+engine = simulationengine.Engine(WIDTH, HEIGHT, config.nb_food, running, d)
+engine.init_grid()
+engine.init_food_list()
+engine.init_gui(f"FPS : 0/{config.fps}")
+engine.init_minos(config.nb_minos, config.size_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)
 
 
-minos_list_id = numpy.zeros((nb_minos[0],6), dtype=numpy.float64) #Stocke les id et les attributs naturels de chaque mino
-for i in range(nb_minos[0]-1):
-        m = minos.Mino(i,size_minos[0], 0,WIDTH, 0, HEIGHT, food_list,resistance_mu[0], resistance_sigma[0], vitesse_mu[0], vitesse_sigma[0], satiete_mu[0], satiete_sigma[0], vision_mu[0], vision_sigma[0])
-        m.draw_vision = print_vision[0]
-        minos_list_id[i,0] = i
-        minos_list_id[i,1] = m.resistance
-        minos_list_id[i,2] = m.vitesse
-        minos_list_id[i,3] = m.satiete
-        minos_list_id[i,4] = m.vision
-        minos_list_id[i,5] = 0
-        minos_list_faim.append([m.jauge_faim])
-        minos_list.append(m)
+
+
+#Initiation de draw : 
+
+
 
 text_pas_affichage = pygame.font.Font(None, 36).render("Simulation en cours, veuillez patienter", True, "white")
 one = True
-nb_frame = 0
-old_nb_frame = 0
+
 
 
 while running:
     #print(len(food_list))
-    time_delta = clock.tick(fps[0])/1000
-    nb_frame+=1
-    if nb_frame >= old_nb_frame + 50 and nb_food[0]>5 :
-         nb_food[0]*=0.90
-         old_nb_frame = nb_frame    
+    time_delta = clock.tick(config.fps)/1000
+    
+    engine.update_food()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -299,77 +117,30 @@ while running:
                   running = False
         manager.process_events(event)
         if (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == button_more_fps):
-            more_fps()
+            engine.more_fps()
         elif (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == button_less_fps):
-                less_fps()
+                engine.less_fps()
 
-    #Je garde food_list mais je ne gere pas les collisions avec
-    for ligne in grille:
-        for cellule_liste in ligne:
-            cellule_liste.clear()
-    food_list = [f for f in food_list if not f.to_destroy]
-    while (len(food_list)<nb_food[0]):
-        food_list.append(food.Food(random.randint(0, WIDTH-10), random.randint(0,HEIGHT-10)))
-
-    for f in food_list: #On construit la grille
-        grille[f.y//100, f.x//100].append(f)
-
-    minos_dead = 0
-    for mino in minos_list:
-        if mino.mort:
-             minos_dead+=1
-        cases_chevauchée = []
-        nw = (mino.y//100, mino.x//100)
-        if (nw not in cases_chevauchée):
-            cases_chevauchée.append(nw)
-        ne = ((mino.y + mino.width)//100, (mino.x)//100)
-        if (ne not in cases_chevauchée):
-            cases_chevauchée.append(ne)
-        sw = (mino.y//100, (mino.x+mino.height)//100)
-        if (sw not in cases_chevauchée):
-            cases_chevauchée.append(sw)
-        se = ((mino.y+ mino.width)//100, (mino.x+mino.height)//100)
-        if (se not in cases_chevauchée):
-            cases_chevauchée.append(se)
-        food_list_to_see_collisions = []
-        for ligne, colonne in cases_chevauchée:
-            if 0 <= ligne < grille.shape[0] and 0 <= colonne < grille.shape[1]:
-                food_list_to_see_collisions.append(grille[int(ligne), int(colonne)])
-        food_neighbors_flat = [f for sublist in food_list_to_see_collisions for f in sublist]
-        if afficher_jeu[0]:
-            d.draw_mino(mino)
-            #Mtn il faut trouver quel(s) cases envoyer au minos
-                
-            mino.update(nb_frame, food_list, food_neighbors_flat)
-        else : 
-             mino.update_speed(nb_frame, food_list, food_neighbors_flat)
-        minos_list_id[mino.id,5] = mino.time_lived
-        minos_list_faim[mino.id].append(mino.jauge_faim)
         
-    
-    print("minos morts : ", minos_dead,"/", nb_minos[0]-1)
-    if minos_dead == nb_minos[0]-1:
+    engine.update_all_minos(config.afficher_jeu)
+    print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
+    if engine.minos_dead == config.nb_minos-1:
          running = False
-    if afficher_jeu[0]:
-        d.print_background()
-        if print_grille[0]:
-             for i in range(nb_col):
-                  for j in range(nb_row):
-                       pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100+100, j*100)))
-                       pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100, j*100+100)))
-                       pygame.draw.line(screen, (255,0,255), (i*100+100, j*100), ((i*100+100, j*100+100)))
-                       pygame.draw.line(screen, (255,0,255), (i*100, j*100+100), ((i*100+100, j*100+100)))
-        d.draw_all_mino(minos_list)
-        d.draw_all_food(food_list)
+    
+    if config.afficher_jeu:
+        engine.print_grid(config.print_grille)
+        d.draw_all_mino(engine.minos_list)
+        d.draw_all_food(engine.food_list)
         manager.update(time_delta)
         manager.draw_ui(screen)
-        label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{fps[0]}")
+        label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{config.fps}")
         d.refresh()
     
         
     else : 
         d.fill_screen((0,0,0))
         screen.blit(text_pas_affichage, (100,200))
+        
         if one: 
              pygame.display.flip()
              one = False
@@ -381,7 +152,7 @@ def normaliser(x,minimum,maximum):
 
 
 
-df = pd.DataFrame(minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "temps vécu"])
+df = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "temps vécu"])
 print(df)
 
 a = min(df["resistance"])
