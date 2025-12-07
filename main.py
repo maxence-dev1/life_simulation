@@ -8,16 +8,9 @@ import pandas as pd
 
 pygame.init()
 
-WIDTH = 2000
-HEIGHT = 1000
+WIDTH = 1200
+HEIGHT = 800
 
-WIDTH_SQUARE = 100
-HEIGHT_SQUARE = 100
-
-grille = numpy.empty((10,20), dtype=object) #La grille qui contiendra la nourriture
-for i in range(10):
-    for j in range(20):
-         grille[i,j] = []
 
 
 #Tracer grille
@@ -36,20 +29,20 @@ clock = pygame.time.Clock()
 
 pygame.display.set_caption("life simulation")
 pygame.event.pump()
-
+full_screen = [False]
 print_vision = [False]
 afficher_jeu = [True]
-nb_minos = [1500]
-size_minos = [20]
-nb_food = [200]
-resistance_mu = [3]
-resistance_sigma = [1.2]
-vitesse_mu = [7]
-vitesse_sigma = [2.5]
-satiete_mu = [1.5]
-satiete_sigma = [0.8]
-vision_mu = [200]
-vision_sigma = [150]
+nb_minos = [2]
+size_minos = [30]
+nb_food = [10]
+resistance_mu = [2]
+resistance_sigma = [0.5]
+vitesse_mu = [5]
+vitesse_sigma = [1.5]
+satiete_mu = [1]
+satiete_sigma = [0.75]
+vision_mu = [150]
+vision_sigma = [120]
 
 print_grille = [False]
 fps = [-1]
@@ -75,6 +68,14 @@ menu = pygame_menu.Menu(
 
 menu.add.button("Jouer", start)
 menu.add.button("Quitter", pygame_menu.events.EXIT)
+
+menu.add.toggle_switch(
+    title="Plein écran : ",
+    default=False,
+    # Correct : n'attend qu'un seul argument (value)
+    onchange=lambda value: full_screen.__setitem__(0, value),
+    width=60
+)
 
 menu.add.text_input(
     "nombre minos : ",
@@ -154,9 +155,9 @@ menu.add.text_input(
     onchange=lambda val: vision_sigma.__setitem__(0, float(val) if val else vision_sigma[0])
 )
 
-menu.add.label("_______________________________________________________________________________________________________________________________", "Dev panel_l1")
+menu.add.label("_____________________________________________________________", "Dev panel_l1")
 menu.add.label("DEV TOOLS", "DEV TOOLS")
-menu.add.label("_______________________________________________________________________________________________________________________________", "Dev panel_l2")
+menu.add.label("_____________________________________________________________", "Dev panel_l2")
 
 menu.add.toggle_switch(
     title="Afficher grille :",
@@ -235,6 +236,25 @@ while state_menu:
     menu.update(events)
     menu.draw(screen)
     pygame.display.flip()
+
+
+if full_screen[0]: 
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+    WIDTH = pygame.display.Info().current_w
+    HEIGHT = pygame.display.Info().current_h
+
+
+WIDTH_SQUARE = 100
+HEIGHT_SQUARE = 100
+
+nb_col = int(WIDTH / WIDTH_SQUARE)
+nb_row = int(HEIGHT / HEIGHT_SQUARE)
+
+grille = numpy.empty((nb_row,nb_col), dtype=object) #La grille qui contiendra la nourriture
+for i in range(nb_row):
+    for j in range(nb_col):
+         grille[i,j] = []     
+
 
 
 food_list = []
@@ -333,8 +353,8 @@ while running:
     if afficher_jeu[0]:
         d.print_background()
         if print_grille[0]:
-             for i in range(20):
-                  for j in range(10):
+             for i in range(nb_col):
+                  for j in range(nb_row):
                        pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100+100, j*100)))
                        pygame.draw.line(screen, (255,0,255), (i*100, j*100), ((i*100, j*100+100)))
                        pygame.draw.line(screen, (255,0,255), (i*100+100, j*100), ((i*100+100, j*100+100)))

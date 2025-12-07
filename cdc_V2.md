@@ -37,6 +37,10 @@ La nourriture devra apparaitre dans certaines zones de richesses (aléatoire à 
 #### Refonte de la fonction main : 
 Amélioration lisibilité code (enlever les liste de 1 éléments etc...), créer des classe SimulationConfig et SimulationEngine afin de gérer toutes les actions du main directement depuis des class
 
+#### Adaptation de la taille des minos
+La taille des minos et de la nourriture devra s'adatper au nombre de minos. (exemple : si il y a 100 minos, ils seront de taille 50, si il y en a 5000, ils seront de taille 10), idem pour la nourriture
+
+
 ## 5.Meilleur analyse de données : 
 #### Meilleur collecte de données
 Collectes de plus de données (nb de frame en aléatoire, nombre de nourriture mangées etc...) puis de les stocker dans plusieurs dataframe pour les transmettre à graph.py qui fera entierement le travail.
