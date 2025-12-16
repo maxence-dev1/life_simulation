@@ -7,10 +7,10 @@ def dist(x1,y1, x2, y2):
 class Mino:
     def __init__(self, id,size, min_x, max_x, min_y, max_y, food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma):
         self.id = id
-        self.resistance = random.gauss(resistance_mu, resistance_sigma)     
-        self.vitesse = random.gauss(vitesse_mu, vitesse_sigma) 
-        self.satiete = random.gauss(satiete_mu, satiete_sigma)
-        self.vision = random.gauss(vision_mu, vision_sigma)
+        self.resistance = max(0.1, random.gauss(resistance_mu, resistance_sigma))
+        self.vitesse = max(0.5,random.gauss(vitesse_mu, vitesse_sigma))
+        self.satiete = max(0.1,random.gauss(satiete_mu, satiete_sigma))
+        self.vision = max(30,random.gauss(vision_mu, vision_sigma))
         self.jauge_faim = 100 * self.resistance
         self.min_x = min_x
         self.max_x = max_x

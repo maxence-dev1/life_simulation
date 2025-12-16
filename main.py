@@ -76,7 +76,7 @@ if config.full_screen:
 
 
 d = draw.Draw(screen, WIDTH, HEIGHT)
-engine = simulationengine.Engine(WIDTH, HEIGHT, config.nb_food, running, d)
+engine = simulationengine.Engine(WIDTH, HEIGHT, config.ratio_food, running, d)
 engine.init_grid()
 engine.init_food_list()
 engine.init_gui(f"FPS : 0/{config.fps}")
@@ -108,8 +108,8 @@ while running:
 
         
     engine.update_all_minos(config.afficher_jeu)
-    if engine.nb_frame%60 == 0:
-        print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
+    # if engine.nb_frame%60 == 0:
+    #     print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
     if engine.minos_dead == config.nb_minos-1:
         running = False
     

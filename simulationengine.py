@@ -2,7 +2,7 @@ import pygame, pygame_gui, pygame_menu, numpy, food, random, minos
 
 
 class Engine():
-    def __init__(self, width, height, nb_food, running, d):
+    def __init__(self, width, height, ratio_food, running, d):
         self.d = d
         self.screen = pygame.display.set_mode((width, height))
         self.manager = pygame_gui.UIManager((width,height), theme_path='theme.json')
@@ -14,7 +14,9 @@ class Engine():
         self.heigh_square = 100
         self.width = width
         self.height = height
-        self.nb_food = nb_food
+        self.ratio_food = ratio_food
+        self.nb_food = 0
+
         self.nb_col = int(self.width / self.width_square)
         self.nb_row = int(self.height / self.heigh_square)
         self.grid = numpy.empty((self.nb_row,self.nb_col), dtype=object)
@@ -25,8 +27,7 @@ class Engine():
         self.minos_dead = 0
         self.minos_list_id = []
         self.nb_minos = 0
-
-
+        
 
         pygame.display.set_caption("Minos")
         pygame.event.pump()
@@ -39,7 +40,7 @@ class Engine():
                 self.grid[i,j] = []    
 
     def init_food_list(self):
-        if (len(self.food_list)<self.nb_food ):
+        if (len(self.food_list)<self.nb_food):
             self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10)))
 
     def init_gui(self, label):   
@@ -71,9 +72,11 @@ class Engine():
         )
 
     def init_minos(self, nb_minos, size_minos,  resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma, print_vision):
+        self.nb_minos = nb_minos
+        self.nb_food = self.ratio_food*self.nb_minos
         self.minos_list_id = numpy.zeros((nb_minos,6), dtype=numpy.float64) #Stocke les id et les attributs naturels de chaque mino
         for i in range(nb_minos-1):
-                m = minos.Mino(i,size_minos, 0,self.width, 0, self.height, self.food_list,resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma)
+                m = minos.Mino(i,size_minos, 0,self.width, 0, self.height, self.food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma)
                 m.draw_vision = print_vision
                 self.minos_list_id[i,0] = i
                 self.minos_list_id[i,1] = m.resistance
@@ -87,8 +90,9 @@ class Engine():
 
     def update_food(self):
         self.nb_frame+=1
-        if self.nb_frame >= self.old_nb_frame + 50 and self.nb_food>1 :
-         self.nb_food*=0.90
+        print("nb minos en vie : ", self.nb_minos - self.minos_dead, "nb food : ", self.nb_food)
+        if self.nb_frame >= self.old_nb_frame + 50:
+         self.nb_food =(self.nb_minos - self.minos_dead)*self.ratio_food
          self.old_nb_frame = self.nb_frame  
 
         for ligne in self.grid:

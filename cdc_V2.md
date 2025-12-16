@@ -29,6 +29,7 @@ La jauge de faim devra évoluer dynamiquement, basé sur l'activité et les attr
 
 #### Apparition de la nourriture : 
 - [ ] La nourriture devra apparaitre dans certaines zones de richesses (aléatoire à terme). 70% de la nourriture devra apparaitre la dedans. 
+- [ ] La quantité de nourriture sera égale au nombre de minos divisé par 2
 
 ## 4. Exigences techniques
 #### Refonte de la fonction main : 

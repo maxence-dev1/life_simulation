@@ -7,11 +7,11 @@ class SimulationConfig:
         self.afficher_jeu = True
         self.nb_minos = 20
         self.size_minos = 30
-        self.nb_food = 5
+        self.ratio_food = 1/2
         self.resistance_mu = 2
-        self.resistance_sigma = 0.5
+        self.resistance_sigma = 1.2
         self.vitesse_mu = 5
-        self.vitesse_sigma = 1.5
+        self.vitesse_sigma = 2.5
         self.satiete_mu = 1
         self.satiete_sigma = 0.75
         self.vision_mu = 150
@@ -69,10 +69,10 @@ class SimulationConfig:
         )
 
         self.menu.add.text_input(
-            "nombre food : ",
-            default=str(self.nb_food),
-            input_type=pygame_menu.locals.INPUT_INT,
-            onchange=lambda value: setattr(self, "nb_food", int(value))
+            "ratio food (nombre de nourriture par mino) : ",
+            default=str(self.ratio_food),
+            input_type=pygame_menu.locals.INPUT_FLOAT,
+            onchange=lambda value: setattr(self, "ratio_food", float(value))
         )
 
 
