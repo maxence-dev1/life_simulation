@@ -6,11 +6,11 @@ import pandas as pd
 #5000 minos avec 0 food apres opti : afficher->1.28 sans afficher -> 25 sec
 #1000 minos avec 500 food apres opti : afficher->1.32 sans afficher -> 37 sec
 
-pygame.init()
 
+
+pygame.init()
 WIDTH = 1200
 HEIGHT = 800
-
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 manager = pygame_gui.UIManager((WIDTH,HEIGHT), theme_path='theme.json')
 clock = pygame.time.Clock()
@@ -24,16 +24,6 @@ running = [False]
 
 config = simulationconfig.SimulationConfig(screen, state_menu, running)
 
-
-
-
-
-
-minos_list_faim = [] #Stocke la satiete de chaque mino
-frame_list = []
-
-import pygame
-import pygame_gui
 
 frame_fps = pygame_gui.elements.UIPanel(
     relative_rect=pygame.Rect(0, 0, 210, 60), 
@@ -95,17 +85,12 @@ engine.init_minos(config.nb_minos, config.size_minos,config.resistance_mu, confi
 
 
 
-#Initiation de draw : 
-
-
-
 text_pas_affichage = pygame.font.Font(None, 36).render("Simulation en cours, veuillez patienter", True, "white")
 one = True
 
 
 
 while running:
-    #print(len(food_list))
     time_delta = clock.tick(config.fps)/1000
     
     engine.update_food()
@@ -117,15 +102,15 @@ while running:
                   running = False
         manager.process_events(event)
         if (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == button_more_fps):
-            engine.more_fps()
+            config.more_fps()
         elif (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == button_less_fps):
-                engine.less_fps()
+                config.less_fps()
 
         
     engine.update_all_minos(config.afficher_jeu)
     print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
     if engine.minos_dead == config.nb_minos-1:
-         running = False
+        running = False
     
     if config.afficher_jeu:
         engine.print_grid(config.print_grille)
@@ -168,7 +153,7 @@ a = min(df["vision"])
 b = max(df["vision"])
 df["vision_normee"] = df["vision"].apply(lambda x: normaliser(x, a, b))
 
-graph.menu_statistique(df, minos_list_faim)
+graph.menu_statistique(df, engine.minos_list_faim)
 
 
 pygame.quit()

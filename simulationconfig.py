@@ -17,7 +17,7 @@ class SimulationConfig:
         self.vision_mu = 150
         self.vision_sigma = 120
         self.print_grille = False
-        self.fps = 10
+        self.fps = 40
         self.screen = screen
         self.state_menu = state_mene
         self.running = running
@@ -33,8 +33,15 @@ class SimulationConfig:
         self.state_menu[0] = False
         self.running[0] = 1 
 
+
+    
+    def more_fps(self):
+        self.fps += 1
+
+    def less_fps(self):
+        self.fps -= 1
+
     def init_all(self):
-        
 
         self.menu.add.button("Jouer", self.start)
         self.menu.add.button("Quitter", pygame_menu.events.EXIT)

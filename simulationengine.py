@@ -32,11 +32,6 @@ class Engine():
         pygame.event.pump()
 
 
-    def more_fps(self):
-        self.fps += 1
-
-    def less_fps(self):
-        self.fps -= 1
 
     def init_grid(self):
         for i in range(self.nb_row):
@@ -108,6 +103,7 @@ class Engine():
 
     def update_all_minos(self, afficher_jeu):
         for mino in self.minos_list:
+            self.minos_dead = 0
             if mino.mort:
                 self.minos_dead+=1
             cases_chevauchée = []
