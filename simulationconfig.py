@@ -5,9 +5,9 @@ class SimulationConfig:
         self.full_screen = False
         self.print_vision = False
         self.afficher_jeu = True
-        self.nb_minos = 2
+        self.nb_minos = 20
         self.size_minos = 30
-        self.nb_food = 10
+        self.nb_food = 1
         self.resistance_mu = 2
         self.resistance_sigma = 0.5
         self.vitesse_mu = 5
@@ -17,7 +17,7 @@ class SimulationConfig:
         self.vision_mu = 150
         self.vision_sigma = 120
         self.print_grille = False
-        self.fps = 40
+        self.fps = -1
         self.screen = screen
         self.state_menu = state_mene
         self.running = running

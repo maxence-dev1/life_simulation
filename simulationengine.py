@@ -8,7 +8,7 @@ class Engine():
         self.manager = pygame_gui.UIManager((width,height), theme_path='theme.json')
         self.clock = pygame.time.Clock()
         self.running = running
-        self.minos_list_faim = []
+        self.food_data = []
         self.frame_list = []
         self.width_square = 100
         self.heigh_square = 100
@@ -81,7 +81,7 @@ class Engine():
                 self.minos_list_id[i,3] = m.satiete
                 self.minos_list_id[i,4] = m.vision
                 self.minos_list_id[i,5] = 0
-                self.minos_list_faim.append([m.jauge_faim])
+                self.food_data.append([m.jauge_faim])
                 self.minos_list.append(m)
     
 
@@ -102,8 +102,8 @@ class Engine():
             self.grid[f.y//100, f.x//100].append(f)
 
     def update_all_minos(self, afficher_jeu):
+        self.minos_dead = 0
         for mino in self.minos_list:
-            self.minos_dead = 0
             if mino.mort:
                 self.minos_dead+=1
             cases_chevauchée = []
@@ -131,7 +131,7 @@ class Engine():
             else : 
                 mino.update_speed(self.nb_frame, self.food_list, food_neighbors_flat)
             self.minos_list_id[mino.id,5] = mino.time_lived
-            self.minos_list_faim[mino.id].append(mino.jauge_faim)
+            self.food_data[mino.id].append(mino.jauge_faim)
 
 
     def print_grid(self, print_grille):

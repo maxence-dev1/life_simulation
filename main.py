@@ -132,28 +132,14 @@ while running:
 
 
 
-def normaliser(x,minimum,maximum):
-     return (x-minimum)/(maximum - minimum)
 
 
 
-df = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "temps vécu"])
-print(df)
+df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived"])
+g = graph.GraphStatistics(df_minos, engine.food_data)
 
-a = min(df["resistance"])
-b = max(df["resistance"])
-df["resistance_normee"] = df["resistance"].apply(lambda x: normaliser(x, a, b))
-a = min(df["vitesse"])
-b = max(df["vitesse"])
-df["vitesse_normee"] = df["vitesse"].apply(lambda x: normaliser(x, a, b))
-a = min(df["satiete"])
-b = max(df["satiete"])
-df["satiete_normee"] = df["satiete"].apply(lambda x: normaliser(x, a, b))
-a = min(df["vision"])
-b = max(df["vision"])
-df["vision_normee"] = df["vision"].apply(lambda x: normaliser(x, a, b))
 
-graph.menu_statistique(df, engine.minos_list_faim)
+g.menu_statistique()
 
 
 pygame.quit()
