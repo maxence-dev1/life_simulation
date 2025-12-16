@@ -2,7 +2,7 @@ import pygame, pygame_gui, pygame_menu, numpy, food, random, minos
 
 
 class Engine():
-    def __init__(self, width, height, ratio_food, running, d):
+    def __init__(self, width, height, ratio_food, running, d, multiple_mode = False):
         self.d = d
         self.screen = pygame.display.set_mode((width, height))
         self.manager = pygame_gui.UIManager((width,height), theme_path='theme.json')
@@ -16,6 +16,8 @@ class Engine():
         self.height = height
         self.ratio_food = ratio_food
         self.nb_food = 0
+
+        self.multiple_mode = multiple_mode
 
         self.nb_col = int(self.width / self.width_square)
         self.nb_row = int(self.height / self.heigh_square)
@@ -44,32 +46,33 @@ class Engine():
             self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10)))
 
     def init_gui(self, label):   
-        self.frame_fps = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(0, 0, 210, 60), 
-            manager=self.manager,
-        )
+        if not self.multiple_mode:
+            self.frame_fps = pygame_gui.elements.UIPanel(
+                relative_rect=pygame.Rect(0, 0, 210, 60), 
+                manager=self.manager,
+            )
 
-        self.button_less_fps = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(5, 15, 35, 30),
-            text="-",
-            manager=self.manager,
-            container=self.frame_fps
-        )
+            self.button_less_fps = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(5, 15, 35, 30),
+                text="-",
+                manager=self.manager,
+                container=self.frame_fps
+            )
 
 
-        self.label_fps = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect(50, 15, 90, 30),
-            text=label, 
-            manager=self.manager,
-            container=self.frame_fps
-        )
+            self.label_fps = pygame_gui.elements.UILabel(
+                relative_rect=pygame.Rect(50, 15, 90, 30),
+                text=label, 
+                manager=self.manager,
+                container=self.frame_fps
+            )
 
-        self.button_more_fps = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(160, 15, 35, 30),
-            text="+",
-            manager=self.manager,
-            container=self.frame_fps
-        )
+            self.button_more_fps = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(160, 15, 35, 30),
+                text="+",
+                manager=self.manager,
+                container=self.frame_fps
+            )
 
     def init_minos(self, nb_minos, size_minos,  resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma, print_vision):
         self.nb_minos = nb_minos
@@ -90,7 +93,7 @@ class Engine():
 
     def update_food(self):
         self.nb_frame+=1
-        print("nb minos en vie : ", self.nb_minos - self.minos_dead, "nb food : ", self.nb_food)
+         #print("nb minos en vie : ", self.nb_minos - self.minos_dead, "nb food : ", self.nb_food)
         if self.nb_frame >= self.old_nb_frame + 50:
          self.nb_food =(self.nb_minos - self.minos_dead)*self.ratio_food
          self.old_nb_frame = self.nb_frame  
@@ -139,6 +142,7 @@ class Engine():
 
 
     def print_grid(self, print_grille):
+        
         self.d.print_background()
         if print_grille:
              for i in range(self.nb_col):

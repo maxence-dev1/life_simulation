@@ -3,7 +3,7 @@ import pygame, pygame_gui, pygame_menu
 class SimulationConfig:
     def __init__(self, screen, state_mene, running):
         self.full_screen = False
-        self.print_vision = True
+        self.print_vision = False
         self.afficher_jeu = True
         self.nb_minos = 20
         self.size_minos = 30
@@ -41,7 +41,9 @@ class SimulationConfig:
     def less_fps(self):
         self.fps -= 1
 
-    def init_all(self):
+    def init_all(self, interface = True):
+        if not interface:
+            return
 
         self.menu.add.button("Jouer", self.start)
         self.menu.add.button("Quitter", pygame_menu.events.EXIT)
