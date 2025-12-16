@@ -87,7 +87,7 @@ class Engine():
 
     def update_food(self):
         self.nb_frame+=1
-        if self.nb_frame >= self.old_nb_frame + 50 and self.nb_food>5 :
+        if self.nb_frame >= self.old_nb_frame + 50 and self.nb_food>1 :
          self.nb_food*=0.90
          self.old_nb_frame = self.nb_frame  
 

@@ -18,7 +18,11 @@ class Mino:
         self.max_y = max_y
         self.x = random.randint(min_x, max_x)
         self.y = random.randint(min_y, max_y)
+        
+        
         self.color = (0 + int(255 * (1 - (1/(1+math.exp(-self.jauge_faim))))),0 + int(255 * ((1/(1+math.exp(-self.jauge_faim))))),0)
+        self.border_color = (self.color[0] * 0.5, self.color[1] * 0.5, self.color[2] * 0.5)
+        
         self.mort = False
         self.to_clear = False
         self.food_list = []
@@ -37,7 +41,7 @@ class Mino:
         self.middle_x = self.x + self.width/2
         self.middle_y = self.y + self.height/2
 
-        
+        self.consommation_fixe = 0.5 
 
     
     def update(self, nb_frame, food_list, food_list_to_see_collisions):
@@ -52,6 +56,7 @@ class Mino:
             self.is_on_food()
         else :
             self.color = ((self.color[0]*0.96,self.color[1]*0.96,self.color[2]*0.96))
+            self.border_color = (self.color[0] * 0.5, self.color[1] * 0.5, self.color[2] * 0.5)
             if (self.color[0]<1):
                 self.to_clear = True
     
@@ -75,7 +80,7 @@ class Mino:
 
     def update_jauge_faim(self):
         """Actualise la jauge de faim"""
-        self.jauge_faim -= 0.5
+        self.jauge_faim -= (self.consommation_fixe + self.resistance*0.05 + self.vitesse*0.025 + int(not bool(self.destination_food))*0.25*self.consommation_fixe)
         if self.jauge_faim <= 0:
             self.mort = True         
         else :
@@ -84,6 +89,7 @@ class Mino:
 
     def find_random_destination(self):
         """Trouve une nouvelle destination aléatoire ou aller"""
+        self.destination_food = None
         self.destinationx = random.randint(self.min_x, self.max_x)
         self.destinationy = random.randint(self.min_y, self.max_y)
 

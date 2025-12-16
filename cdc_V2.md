@@ -14,18 +14,15 @@ Désormais, la nourriture aura des zones préférentielles pour apparaitre.
 
 #### Couts dynamiques
 La jauge de faim devra évoluer dynamiquement, basé sur l'activité et les attributs des minos. Maintenant, chaque déplacement aura un certain prix, proportionnel à certains attributs
-- [ ] Cout résistance : Les minos avec une haute résistance seront avantagés de par la taille de leur jauge mais seront désavantagé car celle- [ ]ci déscendra plus vite
-- [ ] Cout Vitesse : Les minos avec une haute vitesse seront avantagés par leur vitesse de déplacement mais seront désavantagés par le cout en nourriture de se déplacer
+- [x] Cout résistance : Les minos avec une haute résistance seront avantagés de par la taille de leur jauge mais seront désavantagé car celle- [ ]ci déscendra plus vite
+- [x] Cout Vitesse : Les minos avec une haute vitesse seront avantagés par leur vitesse de déplacement mais seront désavantagés par le cout en nourriture de se déplacer
 
 #### Pénalités :
-- [ ] Un minos qui se déplace aléatoirement consommera 25% de nourriture de plus qu'un minos qui se déplace en direction d'une nourriture
-- [ ] Cout de base de la faim = Cout fixe + Vitesse * cout_vitesse + Resistance*cout_resistance (ici la vitesse indiquera donc si le mino sprint)
+- [x] Un minos qui se déplace aléatoirement consommera 25% de nourriture de plus qu'un minos qui se déplace en direction d'une nourriture
+- [x] Cout de base de la faim = Cout fixe + Vitesse * cout_vitesse + Resistance*cout_resistance (ici la vitesse indiquera donc si le mino sprint)
   
 #### Mode urgence
 - [ ] Mode urgence : Un minos dont sa barre de vie est inférieur à 25% de sa capacité maximum entrera en mode urgence. Un mode ou il est en sprint et ou sa vision est augmentée de 40%.
-
-#### Mise en place d'un 'vieilissement'
-- [ ] La résistance doit diminuer uniformément pour tous les minos (par exemple 0.1% toute les 100 frames)
 
 
 ## 3. Amélioration de l'environnement
@@ -35,7 +32,7 @@ La jauge de faim devra évoluer dynamiquement, basé sur l'activité et les attr
 
 ## 4. Exigences techniques
 #### Refonte de la fonction main : 
-- [ ] Amélioration lisibilité code (enlever les liste de 1 éléments etc...), créer des classe SimulationConfig et SimulationEngine afin de gérer toutes les actions du main directement depuis des class
+- [x] Amélioration lisibilité code (enlever les liste de 1 éléments etc...), créer des classe SimulationConfig et SimulationEngine afin de gérer toutes les actions du main directement depuis des class
 
 #### Adaptation de la taille des minos
 La taille des minos et de la nourriture devra s'adatper au nombre de minos. (exemple : si il y a 100 minos, ils seront de taille 50, si il y en a 5000, ils seront de taille 10), idem pour la nourriture

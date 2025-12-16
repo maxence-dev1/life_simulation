@@ -108,7 +108,8 @@ while running:
 
         
     engine.update_all_minos(config.afficher_jeu)
-    print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
+    if engine.nb_frame%60 == 0:
+        print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
     if engine.minos_dead == config.nb_minos-1:
         running = False
     

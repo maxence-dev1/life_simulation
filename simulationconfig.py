@@ -3,11 +3,11 @@ import pygame, pygame_gui, pygame_menu
 class SimulationConfig:
     def __init__(self, screen, state_mene, running):
         self.full_screen = False
-        self.print_vision = False
+        self.print_vision = True
         self.afficher_jeu = True
         self.nb_minos = 20
         self.size_minos = 30
-        self.nb_food = 1
+        self.nb_food = 5
         self.resistance_mu = 2
         self.resistance_sigma = 0.5
         self.vitesse_mu = 5
@@ -17,7 +17,7 @@ class SimulationConfig:
         self.vision_mu = 150
         self.vision_sigma = 120
         self.print_grille = False
-        self.fps = -1
+        self.fps = 50
         self.screen = screen
         self.state_menu = state_mene
         self.running = running
