@@ -7,7 +7,7 @@ import pandas as pd
 #1000 minos avec 500 food apres opti : afficher->1.32 sans afficher -> 37 sec
 
 
-def main(nb_minos = None, ratio_food = None):
+def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
     pygame.init()
     if nb_minos is None:
 
@@ -149,10 +149,6 @@ def main(nb_minos = None, ratio_food = None):
         sys.exit()
 
     else:
-        WIDTH = 1200
-        HEIGHT = 800
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        manager = pygame_gui.UIManager((WIDTH,HEIGHT), theme_path='theme.json')
         clock = pygame.time.Clock()
 
 
@@ -162,7 +158,7 @@ def main(nb_minos = None, ratio_food = None):
         state_menu = [True] #Ici j'ai mis des listes afin de pouvoir modifier directement la variable à l'adresse depuis d'autres fonctions
         running = [False]
 
-        config = simulationconfig.SimulationConfig(screen, state_menu, running)
+        config = simulationconfig.SimulationConfig(None, state_menu, running)
         config.fps = -1
 
 
@@ -171,7 +167,7 @@ def main(nb_minos = None, ratio_food = None):
         config.init_all(False)
         config.nb_minos = nb_minos
 
-        engine = simulationengine.Engine(WIDTH, HEIGHT, config.ratio_food, running, None)
+        engine = simulationengine.Engine(width, height, config.ratio_food, running, None)
         engine.init_grid()
         engine.init_food_list()
         engine.init_minos(config.nb_minos, config.size_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)

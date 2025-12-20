@@ -1,10 +1,10 @@
 import pygame, pygame_gui, pygame_menu
 
 class SimulationConfig:
-    def __init__(self, screen, state_mene, running):
+    def __init__(self, screen = None, state_mene =None, running = None):
         self.full_screen = False
         self.print_vision = False
-        self.afficher_jeu = True
+        self.afficher_jeu = False
         self.nb_minos = 20
         self.size_minos = 30
         self.ratio_food = 1/2
@@ -21,12 +21,13 @@ class SimulationConfig:
         self.screen = screen
         self.state_menu = state_mene
         self.running = running
-        self.menu = pygame_menu.Menu(
-            width=1200,
-            height=800,
-            title="Menu Principal",
-            theme=pygame_menu.themes.THEME_DARK
-        )
+        if screen is not None:
+            self.menu = pygame_menu.Menu(
+                width=1200,
+                height=800,
+                title="Menu Principal",
+                theme=pygame_menu.themes.THEME_DARK
+            )
 
 
     def start(self):
