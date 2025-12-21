@@ -1,30 +1,32 @@
 import pygame, pygame_gui, pygame_menu
 
 class SimulationConfig:
-    def __init__(self, screen = None, state_mene =None, running = None):
+    def __init__(self,width, height, screen = None, state_mene =None, running = None):
         self.full_screen = False
         self.print_vision = False
-        self.afficher_jeu = False
-        self.nb_minos = 20
-        self.size_minos = 30
-        self.ratio_food = 1/2
+        self.afficher_jeu = True
+        self.nb_minos = 1000
+        self.size_minos = 50
+        self.ratio_food = 1/5
         self.resistance_mu = 2
         self.resistance_sigma = 1.2
         self.vitesse_mu = 5
         self.vitesse_sigma = 2.5
         self.satiete_mu = 1
         self.satiete_sigma = 0.75
-        self.vision_mu = 150
-        self.vision_sigma = 120
+        self.vision_mu = 300
+        self.vision_sigma = 20
         self.print_grille = False
-        self.fps = 50
+        self.fps = -1
         self.screen = screen
         self.state_menu = state_mene
         self.running = running
+        self.width = width
+        self.height = height
         if screen is not None:
             self.menu = pygame_menu.Menu(
-                width=1200,
-                height=800,
+                width=width,
+                height=height,
                 title="Menu Principal",
                 theme=pygame_menu.themes.THEME_DARK
             )
@@ -44,6 +46,7 @@ class SimulationConfig:
 
     def init_all(self, interface = True):
         if not interface:
+            self.running[0] = 1 
             return
 
         self.menu.add.button("Jouer", self.start)

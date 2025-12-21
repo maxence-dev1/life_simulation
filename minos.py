@@ -8,10 +8,15 @@ class Mino:
     def __init__(self, id,size, min_x, max_x, min_y, max_y, food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma):
         self.id = id
         self.resistance = max(0.1, random.gauss(resistance_mu, resistance_sigma))
-        self.vitesse = max(0.5,random.gauss(vitesse_mu, vitesse_sigma))
+        self.vitesse = max(0.5,random.gauss(vitesse_mu*size/30, vitesse_sigma))
+        print(self.vitesse)
+        self.vitesse_initiale = self.vitesse
+
         self.satiete = max(0.1,random.gauss(satiete_mu, satiete_sigma))
-        self.vision = max(30,random.gauss(vision_mu, vision_sigma))
+        self.vision = max(30,random.gauss(vision_mu*size/30, vision_sigma))
         self.jauge_faim = 100 * self.resistance
+        self.max_jauge_faim = self.jauge_faim
+        
         self.min_x = min_x
         self.max_x = max_x
         self.min_y = min_y
@@ -34,7 +39,7 @@ class Mino:
         self.draw_vision = True
         self.time_lived = 0
         
-        
+        self.sprint = False
 
         self.width = size
         self.height = size
@@ -51,6 +56,7 @@ class Mino:
             self.food_list_to_see_collisions = food_list_to_see_collisions
             self.food_list = food_list
             self.time_lived = nb_frame
+            self.verif_sprint_mode()
             self.go_to_destination()
             self.update_jauge_faim()
             self.is_on_food()
@@ -69,6 +75,20 @@ class Mino:
             self.go_to_destination()
             self.update_jauge_faim()
             self.is_on_food()
+
+    def verif_sprint_mode(self):
+        if (not self.sprint and self.jauge_faim <= self.max_jauge_faim*0.5 and self.destination_food is not None):
+            self.border_color = (255,255,0)
+            self.sprint = True
+            self.vitesse *= 2
+
+        elif (self.sprint and self.jauge_faim > self.max_jauge_faim*0.5 and self.destination_food is None):
+            self.border_color = (self.color[0] * 0.5, self.color[1] * 0.5, self.color[2] * 0.5)
+            self.sprint = False
+            self.vitesse /= 2
+
+
+
 
     def is_on_food(self):
         #On vérifie uniquement les collisions avec les food dont il chevauche les cases

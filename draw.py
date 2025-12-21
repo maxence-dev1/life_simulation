@@ -49,7 +49,7 @@ class Draw():
 
     def draw_food(self, food):
         """Affiche une nourriture"""
-        pygame.draw.circle(self.screen, (0,0,255), (food.x, food.y), 5)
+        pygame.draw.circle(self.screen, (0,0,255), (food.x, food.y), food.size)
 
     def draw_all_food(self, food):
         """Affiche toutes les nourritures"""

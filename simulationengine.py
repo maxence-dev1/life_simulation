@@ -1,11 +1,14 @@
-import pygame, pygame_gui, pygame_menu, numpy, food, random, minos
+import pygame, pygame_gui, pygame_menu, numpy, food, random, minos, math
 
 
 class Engine():
     def __init__(self, width, height, ratio_food, running, d, multiple_mode = False):
         self.d = d
-        self.screen = pygame.display.set_mode((width, height))
-        self.manager = pygame_gui.UIManager((width,height), theme_path='theme.json')
+        if not multiple_mode:  
+            self.screen = pygame.display.set_mode((width, height))
+            self.manager = pygame_gui.UIManager((width,height), theme_path='theme.json')
+            pygame.display.set_caption("Minos")
+            pygame.event.pump()
         self.clock = pygame.time.Clock()
         self.running = running
         self.food_data = []
@@ -29,10 +32,10 @@ class Engine():
         self.minos_dead = 0
         self.minos_list_id = []
         self.nb_minos = 0
+        self.size_food = 0
         
 
-        pygame.display.set_caption("Minos")
-        pygame.event.pump()
+        
 
 
 
@@ -42,8 +45,13 @@ class Engine():
                 self.grid[i,j] = []    
 
     def init_food_list(self):
-        if (len(self.food_list)<self.nb_food):
-            self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10)))
+        surface = self.width* self.height
+        densite = self.nb_minos/surface
+        print("densité : ",densite)
+        self.size_food = int(max(1, min(10,0.5/(densite**0.25))))
+        print("size food : ",self.size_food)
+        for i in range(int(self.nb_minos*self.ratio_food)):
+            self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10), self.size_food ))
 
     def init_gui(self, label):   
         if not self.multiple_mode:
@@ -78,8 +86,12 @@ class Engine():
         self.nb_minos = nb_minos
         self.nb_food = self.ratio_food*self.nb_minos
         self.minos_list_id = numpy.zeros((nb_minos,6), dtype=numpy.float64) #Stocke les id et les attributs naturels de chaque mino
-        for i in range(nb_minos-1):
-                m = minos.Mino(i,size_minos, 0,self.width, 0, self.height, self.food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma)
+        surface = self.width* self.height
+        densite = nb_minos/surface
+        size = int(max(8,50 / (1 + 2400 * densite)))
+
+        for i in range(nb_minos):
+                m = minos.Mino(i,size, 0,self.width, 0, self.height, self.food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma)
                 m.draw_vision = print_vision
                 self.minos_list_id[i,0] = i
                 self.minos_list_id[i,1] = m.resistance
@@ -103,7 +115,7 @@ class Engine():
                 cellule_liste.clear()
         self.food_list = [f for f in self.food_list if not f.to_destroy]
         while (len(self.food_list)<self.nb_food):
-            self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10)))
+            self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10),self.size_food))
 
         for f in self.food_list: #On construit la grille
             self.grid[f.y//100, f.x//100].append(f)
