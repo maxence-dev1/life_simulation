@@ -129,7 +129,7 @@ class Mino:
                     food = f
         if x_to_go == None:
             return -1,-1,-1,None
-        return dist_min, x_to_go, y_to_go, food
+        return math.sqrt(dist_min), x_to_go, y_to_go, food
 
 
     def find_destination(self, do_random = True):
@@ -165,15 +165,18 @@ class Mino:
             if self.time_lived%10 ==0: #Il vérifie uniquement 1 frame sur 10 car c'est couteux
                 self.find_destination(False) # Pour vérifier si il trouve une autre nourriture plus pret
 
-        if self.destinationx-5 <=self.x <= self.destinationx+5 : 
-            pass
+        
+        distance_x = self.destinationx - self.x
+        if abs(distance_x) <= self.vitesse:
+            self.x = self.destinationx
         elif self.destinationx > self.x:
             self.x += self.vitesse
         else : 
             self.x -= self.vitesse
         
-        if self.destinationy-5 <= self.y <= self.destinationy+5: 
-            pass
+        distance_y = self.destinationy - self.y
+        if abs(distance_y) <= self.vitesse:
+            self.y = self.destinationy
         elif self.destinationy > self.y:
             self.y += self.vitesse
         else : 
