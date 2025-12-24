@@ -21,9 +21,12 @@ class Engine():
         self.nb_food = 0
 
         self.multiple_mode = multiple_mode
-
+        print("height : ", height)
+        print("width : ", width)
         self.nb_col = int(self.width / self.width_square)
         self.nb_row = int(self.height / self.heigh_square)
+        print("nb col : ", self.nb_col)
+        print("nb row : ", self.nb_row)
         self.grid = numpy.empty((self.nb_row,self.nb_col), dtype=object)
         self.food_list = []
         self.minos_list = []
@@ -43,13 +46,14 @@ class Engine():
         for i in range(self.nb_row):
             for j in range(self.nb_col):
                 self.grid[i,j] = []    
+        print(len(self.grid))
+        print(len(self.grid[0]))
+
 
     def init_food_list(self):
         surface = self.width* self.height
         densite = self.nb_minos/surface
-        print("densité : ",densite)
         self.size_food = int(max(1, min(10,0.5/(densite**0.25))))
-        print("size food : ",self.size_food)
         for i in range(int(self.nb_minos*self.ratio_food)):
             self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10), self.size_food ))
 
@@ -116,7 +120,8 @@ class Engine():
         self.food_list = [f for f in self.food_list if not f.to_destroy]
         while (len(self.food_list)<self.nb_food):
             self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10),self.size_food))
-
+        
+        
         for f in self.food_list: #On construit la grille
             self.grid[f.y//100, f.x//100].append(f)
 
@@ -139,9 +144,11 @@ class Engine():
             if (se not in cases_chevauchée):
                 cases_chevauchée.append(se)
             food_list_to_see_collisions = []
+            
             for ligne, colonne in cases_chevauchée:
                 if 0 <= ligne < self.grid.shape[0] and 0 <= colonne < self.grid.shape[1]:
                     food_list_to_see_collisions.append(self.grid[int(ligne), int(colonne)])
+            print(cases_chevauchée)
             food_neighbors_flat = [f for sublist in food_list_to_see_collisions for f in sublist]
             if afficher_jeu:
                 self.d.draw_mino(mino)

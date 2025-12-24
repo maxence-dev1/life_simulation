@@ -9,7 +9,6 @@ class Mino:
         self.id = id
         self.resistance = max(0.1, random.gauss(resistance_mu, resistance_sigma))
         self.vitesse = max(0.5,random.gauss(vitesse_mu*size/30, vitesse_sigma))
-        print(self.vitesse)
         self.vitesse_initiale = self.vitesse
 
         self.satiete = max(0.1,random.gauss(satiete_mu, satiete_sigma))
@@ -109,19 +108,24 @@ class Mino:
 
     def find_random_destination(self):
         """Trouve une nouvelle destination aléatoire ou aller"""
+        print("random destination")
         self.destination_food = None
         self.destinationx = random.randint(self.min_x, self.max_x)
         self.destinationy = random.randint(self.min_y, self.max_y)
 
 
     def get_closer_food(self, list_to_search):
-        dist_min = 9999
+        print("get_closer_food : ",len(list_to_search) )
+        dist_min = float("inf")
         x_to_go = None
         for f in list_to_search:
             if not f.to_destroy:
-                distance = dist(self.x, self.y, f.x, f.y)
-                if distance<dist_min:
-                    dist_min = distance
+                dx = f.x - self.x
+                dy = f.y - self.y
+                distance_sq = dx*dx + dy*dy 
+                #Ici on compare directement les carré car beaucoup moins couteux que pour la racine carré
+                if distance_sq < dist_min:
+                    dist_min = distance_sq
                     x_to_go = f.x
                     y_to_go = f.y
                     food = f

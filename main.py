@@ -69,12 +69,10 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
             
             
 
-
         if config.full_screen and nb_minos == None : 
             screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
             WIDTH = pygame.display.Info().current_w
             HEIGHT = pygame.display.Info().current_h
-
 
         d = draw.Draw(screen, WIDTH, HEIGHT)
         engine = simulationengine.Engine(WIDTH, HEIGHT, config.ratio_food, running, d)
