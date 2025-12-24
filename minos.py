@@ -108,14 +108,12 @@ class Mino:
 
     def find_random_destination(self):
         """Trouve une nouvelle destination aléatoire ou aller"""
-        print("random destination")
         self.destination_food = None
         self.destinationx = random.randint(self.min_x, self.max_x)
         self.destinationy = random.randint(self.min_y, self.max_y)
 
 
     def get_closer_food(self, list_to_search):
-        print("get_closer_food : ",len(list_to_search) )
         dist_min = float("inf")
         x_to_go = None
         for f in list_to_search:

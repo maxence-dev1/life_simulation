@@ -2,11 +2,11 @@ import pygame, pygame_gui, pygame_menu, numpy, food, random, minos, math
 
 
 class Engine():
-    def __init__(self, width, height, ratio_food, running, d, multiple_mode = False):
+    def __init__(self, width, height, ratio_food, running, d, multiple_mode = False, screen = None, manager = None):
         self.d = d
         if not multiple_mode:  
-            self.screen = pygame.display.set_mode((width, height))
-            self.manager = pygame_gui.UIManager((width,height), theme_path='theme.json')
+            self.screen = screen
+            self.manager = manager
             pygame.display.set_caption("Minos")
             pygame.event.pump()
         self.clock = pygame.time.Clock()
@@ -23,8 +23,8 @@ class Engine():
         self.multiple_mode = multiple_mode
         print("height : ", height)
         print("width : ", width)
-        self.nb_col = int(self.width / self.width_square)
-        self.nb_row = int(self.height / self.heigh_square)
+        self.nb_col = math.ceil(self.width / self.width_square)
+        self.nb_row = math.ceil(self.height / self.heigh_square)
         print("nb col : ", self.nb_col)
         print("nb row : ", self.nb_row)
         self.grid = numpy.empty((self.nb_row,self.nb_col), dtype=object)
@@ -55,7 +55,7 @@ class Engine():
         densite = self.nb_minos/surface
         self.size_food = int(max(1, min(10,0.5/(densite**0.25))))
         for i in range(int(self.nb_minos*self.ratio_food)):
-            self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10), self.size_food ))
+            self.food_list.append(food.Food(random.randint(10, self.width-10), random.randint(10,self.height-10), self.size_food ))
 
     def init_gui(self, label):   
         if not self.multiple_mode:
@@ -119,7 +119,7 @@ class Engine():
                 cellule_liste.clear()
         self.food_list = [f for f in self.food_list if not f.to_destroy]
         while (len(self.food_list)<self.nb_food):
-            self.food_list.append(food.Food(random.randint(0, self.width-10), random.randint(0,self.height-10),self.size_food))
+            self.food_list.append(food.Food(random.randint(10, self.width-10), random.randint(10,self.height-10), self.size_food ))
         
         
         for f in self.food_list: #On construit la grille
@@ -144,11 +144,9 @@ class Engine():
             if (se not in cases_chevauchée):
                 cases_chevauchée.append(se)
             food_list_to_see_collisions = []
-            
             for ligne, colonne in cases_chevauchée:
                 if 0 <= ligne < self.grid.shape[0] and 0 <= colonne < self.grid.shape[1]:
                     food_list_to_see_collisions.append(self.grid[int(ligne), int(colonne)])
-            print(cases_chevauchée)
             food_neighbors_flat = [f for sublist in food_list_to_see_collisions for f in sublist]
             if afficher_jeu:
                 self.d.draw_mino(mino)

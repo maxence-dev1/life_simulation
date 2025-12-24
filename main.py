@@ -5,12 +5,19 @@ import pandas as pd
 
 #5000 minos avec 0 food apres opti : afficher->1.28 sans afficher -> 25 sec
 #1000 minos avec 500 food apres opti : afficher->1.32 sans afficher -> 37 sec
+import ctypes
+import os
 
+# Force Windows à ne pas redimensionner la fenêtre (DPI Awareness)
+try:
+    ctypes.windll.shcore.SetProcessDpiAwareness(1)
+except Exception:
+    ctypes.windll.user32.SetProcessDPIAware()
 
 def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
     pygame.init()
     if nb_minos is None:
-        WIDTH = 1800
+        WIDTH = 1999
         HEIGHT = 1000
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
         manager = pygame_gui.UIManager((WIDTH,HEIGHT), theme_path='theme.json')
@@ -25,38 +32,8 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
 
         config = simulationconfig.SimulationConfig(WIDTH, HEIGHT, screen, state_menu, running)
 
-
-        frame_fps = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(0, 0, 210, 60), 
-            manager=manager,
-        )
-
-        button_less_fps = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(5, 15, 35, 30),
-            text="-",
-            manager=manager,
-            container=frame_fps
-        )
-
-
-        label_fps = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect(50, 15, 90, 30),
-            text=f"FPS : {clock.get_fps():.1f}/{config.fps}", 
-            manager=manager,
-            container=frame_fps
-        )
-
-        button_more_fps = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(160, 15, 35, 30),
-            text="+",
-            manager=manager,
-            container=frame_fps
-        )
-
-
-
         config.init_all()
-
+        
 
 
         while state_menu[0]:
@@ -70,23 +47,26 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
             
 
         if config.full_screen and nb_minos == None : 
-            screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-            WIDTH = pygame.display.Info().current_w
-            HEIGHT = pygame.display.Info().current_h
+            WIDTH, HEIGHT = pygame.display.list_modes()[0]
+            screen = pygame.display.set_mode((WIDTH,HEIGHT), pygame.FULLSCREEN)
+            manager.set_window_resolution((WIDTH, HEIGHT)) 
+        
 
         d = draw.Draw(screen, WIDTH, HEIGHT)
-        engine = simulationengine.Engine(WIDTH, HEIGHT, config.ratio_food, running, d)
+        
+        engine = simulationengine.Engine(WIDTH, HEIGHT, config.ratio_food, running, d, False, screen, manager)
+        
         engine.init_grid()
+        
         
         engine.init_gui(f"FPS : 0/{config.fps}")
         engine.init_minos(config.nb_minos, config.size_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)
         engine.init_food_list()
-
+        
 
 
         text_pas_affichage = pygame.font.Font(None, 36).render("Simulation en cours, veuillez patienter", True, "white")
         one = True
-
 
 
         while running[0]:
@@ -100,9 +80,9 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
                     if event.key == pygame.K_ESCAPE:
                         running[0] = False
                 manager.process_events(event)
-                if (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == button_more_fps):
+                if (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == engine.button_more_fps):
                     config.more_fps()
-                elif (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == button_less_fps):
+                elif (event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == engine.button_less_fps):
                         config.less_fps()
 
                 
@@ -118,7 +98,7 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
                 d.draw_all_food(engine.food_list)
                 manager.update(time_delta)
                 manager.draw_ui(screen)
-                label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{config.fps}")
+                engine.label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{config.fps}")
                 d.refresh()
             
                 

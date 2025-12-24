@@ -2,7 +2,7 @@ import pygame, pygame_gui, pygame_menu
 
 class SimulationConfig:
     def __init__(self,width, height, screen = None, state_mene =None, running = None):
-        self.full_screen = False
+        self.full_screen = True
         self.print_vision = True
         self.afficher_jeu = True
         self.nb_minos = 1
