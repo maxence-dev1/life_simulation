@@ -3,20 +3,19 @@ import pygame, pygame_gui, pygame_menu
 class SimulationConfig:
     def __init__(self,width, height, screen = None, state_mene =None, running = None):
         self.full_screen = False
-        self.print_vision = True
+        self.print_vision = False
         self.afficher_jeu = True
-        self.nb_minos = 1
-        self.size_minos = 50
-        self.ratio_food = 100
+        self.nb_minos = 50
+        self.ratio_food = 0.1
         self.resistance_mu = 2
-        self.resistance_sigma = 1.2
+        self.resistance_sigma = 1
         self.vitesse_mu = 5
-        self.vitesse_sigma = 2.5
+        self.vitesse_sigma = 2
         self.satiete_mu = 1
-        self.satiete_sigma = 0.75
-        self.vision_mu = 300
-        self.vision_sigma = 20
-        self.print_grille = True
+        self.satiete_sigma = 0.5
+        self.vision_mu = 150
+        self.vision_sigma = 50
+        self.print_grille = False
         self.fps = -1
         self.screen = screen
         self.state_menu = state_mene
@@ -33,6 +32,8 @@ class SimulationConfig:
 
 
     def start(self):
+        if not self.afficher_jeu:
+            self.fps = -1
         self.state_menu[0] = False
         self.running[0] = 1 
 
@@ -66,14 +67,6 @@ class SimulationConfig:
             input_type=pygame_menu.locals.INPUT_INT,
             onchange=lambda value: setattr(self, "nb_minos", int(value))
         )
-
-        self.menu.add.text_input(
-            "size minos : ",
-            default=str(self.size_minos),
-            input_type=pygame_menu.locals.INPUT_INT,
-            onchange=lambda value: setattr(self, "size_minos", int(value))
-        )
-
         self.menu.add.text_input(
             "ratio food (nombre de nourriture par mino) : ",
             default=str(self.ratio_food),

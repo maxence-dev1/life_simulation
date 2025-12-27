@@ -60,7 +60,7 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
         
         
         engine.init_gui(f"FPS : 0/{config.fps}")
-        engine.init_minos(config.nb_minos, config.size_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)
+        engine.init_minos(config.nb_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)
         engine.init_food_list()
         
 
@@ -87,8 +87,7 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
 
                 
             engine.update_all_minos(config.afficher_jeu)
-            # if engine.nb_frame%60 == 0:
-            #     print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
+
             if engine.minos_dead == config.nb_minos:
                 running[0] = False
             
@@ -105,12 +104,16 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
             else : 
                 d.fill_screen((0,0,0))
                 screen.blit(text_pas_affichage, (100,200))
+                if engine.nb_frame%60 == 0:
+                    print("minos morts : ", engine.minos_dead,"/", config.nb_minos-1)
                 if one: 
                     pygame.display.flip()
                     one = False
 
 
-        df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived"])
+        df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived", "food_eaten", "distance_traveled"])
+        df_minos["ratio_food"] = engine.ratio_food
+        pd.set_option('display.max_rows', 100)
         g = graph.GraphStatistics(df_minos, engine.food_data)
 
 
@@ -126,7 +129,7 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
         state_menu = [True] #Ici j'ai mis des listes afin de pouvoir modifier directement la variable à l'adresse depuis d'autres fonctions
         running = [False]
 
-        config = simulationconfig.SimulationConfig(None, state_menu, running)
+        config = simulationconfig.SimulationConfig(width, height, None, state_menu, running)
         config.fps = -1
 
 
@@ -137,8 +140,9 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
 
         engine = simulationengine.Engine(width, height, config.ratio_food, running, None, True)
         engine.init_grid()
+        
+        engine.init_minos(config.nb_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)
         engine.init_food_list()
-        engine.init_minos(config.nb_minos, config.size_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)
         engine.ratio_food = ratio_food
 
 
@@ -151,7 +155,6 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
             if engine.minos_dead == config.nb_minos:
                 running[0] = False
 
-        df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived"])
+        df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived", "food_eaten", "distance_traveled"])
         return (df_minos, engine.food_data)
-
-main()
+    

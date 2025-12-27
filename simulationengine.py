@@ -21,12 +21,8 @@ class Engine():
         self.nb_food = 0
 
         self.multiple_mode = multiple_mode
-        print("height : ", height)
-        print("width : ", width)
         self.nb_col = math.ceil(self.width / self.width_square)
         self.nb_row = math.ceil(self.height / self.heigh_square)
-        print("nb col : ", self.nb_col)
-        print("nb row : ", self.nb_row)
         self.grid = numpy.empty((self.nb_row,self.nb_col), dtype=object)
         self.food_list = []
         self.minos_list = []
@@ -46,8 +42,6 @@ class Engine():
         for i in range(self.nb_row):
             for j in range(self.nb_col):
                 self.grid[i,j] = []    
-        print(len(self.grid))
-        print(len(self.grid[0]))
 
 
     def init_food_list(self):
@@ -86,10 +80,10 @@ class Engine():
                 container=self.frame_fps
             )
 
-    def init_minos(self, nb_minos, size_minos,  resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma, print_vision):
+    def init_minos(self, nb_minos,  resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma, print_vision):
         self.nb_minos = nb_minos
         self.nb_food = self.ratio_food*self.nb_minos
-        self.minos_list_id = numpy.zeros((nb_minos,6), dtype=numpy.float64) #Stocke les id et les attributs naturels de chaque mino
+        self.minos_list_id = numpy.zeros((nb_minos,8), dtype=numpy.float64) #Stocke les id et les attributs naturels de chaque mino
         surface = self.width* self.height
         densite = nb_minos/surface
         size = int(max(8,50 / (1 + 2400 * densite)))
@@ -102,6 +96,8 @@ class Engine():
                 self.minos_list_id[i,2] = m.vitesse
                 self.minos_list_id[i,3] = m.satiete
                 self.minos_list_id[i,4] = m.vision
+                self.minos_list_id[i,5] = 0
+                self.minos_list_id[i,5] = 0
                 self.minos_list_id[i,5] = 0
                 self.food_data.append([m.jauge_faim])
                 self.minos_list.append(m)
@@ -129,6 +125,9 @@ class Engine():
         self.minos_dead = 0
         for mino in self.minos_list:
             if mino.mort:
+                self.minos_list_id[mino.id,6] = mino.food_eaten
+                self.minos_list_id[mino.id,7] = mino.distance_traveled
+                self.minos_list_id[mino.id,5] = mino.time_lived
                 self.minos_dead+=1
             cases_chevauchée = []
             nw = (mino.y//100, mino.x//100)
@@ -153,8 +152,7 @@ class Engine():
                 #Mtn il faut trouver quel(s) cases envoyer au minos
                 mino.update(self.nb_frame, self.food_list, food_neighbors_flat)
             else : 
-                mino.update_speed(self.nb_frame, self.food_list, food_neighbors_flat)
-            self.minos_list_id[mino.id,5] = mino.time_lived
+                mino.update_speed(self.nb_frame, self.food_list, food_neighbors_flat) 
             self.food_data[mino.id].append(mino.jauge_faim)
 
 

@@ -3,24 +3,30 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.widgets import Button, RadioButtons
 import numpy as np
+import pandas as pd
+import csv
+
 #Ici
 liste_df = []
 liste_liste_food = []
 
-best_list = []
-worst_list = []
+
+#But pour ML, remplir csv avec environ 5000 lignes. Faire varier le ratio food et le nombre de minos sur X simulations + rajouter food collected et distance_traveleld
 
 
-for nb_minos in range(2,20): #Je veux récuperer le meilleur et le pire de chaque simulation pour voir les avantages et tout 
-    for ratio in range(1,10):
-        res = main.main(nb_minos,1/ratio, 2500, 1400)
-        best_list.append(res[0].loc[res[0]["time_lived"].idxmax()])
-        worst_list.append(res[0].loc[res[0]["time_lived"].idxmin()])
-        print(f"simulation avec {nb_minos} minos et 1/{ratio} ratio. best_time : {res[0]["time_lived"].max()}, worst_time : {res[0]["time_lived"].min()}")
+big_data = []
+
+first = True
+for i in range(10):
+    for nb_minos in range(10,500,30): 
+        for ratio in range(1,20,4):
+            res = main.main(nb_minos,1/ratio)
+            df_sim = res[0]
+            df_sim["nb_minos"] = nb_minos
+            df_sim["ratio_food"] = 1/ratio
+            big_data.append(df_sim)
+            print(f"simulation avec {nb_minos} minos et 1/{ratio} ratio. time : {res[0]["time_lived"].max()}")
 
 
-resistance_best = [float((df["time_lived"] for df in best_list))]
-resistance_worst = [float((df["time_lived"] for df in worst_list))] 
-
-print(resistance_best)
-print(resistance_worst)
+final_big_df = pd.concat(big_data)
+final_big_df.to_csv("data.csv",header= True, index=False)

@@ -13,9 +13,9 @@ class Mino:
 
         self.satiete = max(0.1,random.gauss(satiete_mu, satiete_sigma))
         self.vision = max(30,random.gauss(vision_mu*size/30, vision_sigma))
-        self.jauge_faim = 100 * self.resistance
-        self.max_jauge_faim = self.jauge_faim
         
+        self.max_jauge_faim = 100 * self.resistance
+        self.jauge_faim =  100 + self.resistance * 25
         self.min_x = min_x
         self.max_x = max_x
         self.min_y = min_y
@@ -37,7 +37,10 @@ class Mino:
         self.find_destination()
         self.draw_vision = True
         self.time_lived = 0
-        
+        self.food_eaten = 0
+        self.distance_traveled = 0
+
+
         self.sprint = False
 
         self.width = size
@@ -50,6 +53,7 @@ class Mino:
     
     def update(self, nb_frame, food_list, food_list_to_see_collisions):
         """Actualise entierement un mino"""
+        #print(f"{self.jauge_faim}/{self.max_jauge_faim}")
         if not self.mort : 
             #print(f"food_list : {len(food_list)}, foo_list_to_see_collision : {len(food_list_to_see_collisions)}")
             self.food_list_to_see_collisions = food_list_to_see_collisions
@@ -93,15 +97,22 @@ class Mino:
         #On vérifie uniquement les collisions avec les food dont il chevauche les cases
         for f in self.food_list_to_see_collisions:
                 if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height) and not f.to_destroy:
+                    self.food_eaten+=1
                     f.to_destroy = True
                     if self.jauge_faim + 30*self.satiete <= self.resistance*150:
-                        self.jauge_faim += 30*self.satiete
+                        self.jauge_faim += 25 + 15*self.satiete
 
     def update_jauge_faim(self):
         """Actualise la jauge de faim"""
-        self.jauge_faim -= (self.consommation_fixe + self.resistance*0.05 + self.vitesse*0.025 + int(not bool(self.destination_food))*0.25*self.consommation_fixe)
+        cout_base = self.consommation_fixe +(self.resistance*0.1)+(self.vision*0.001)
+        cout_effort = self.vitesse**1.5*self.resistance*0.005
+        malus_recherche = 0.25 if not self.destination_food else 0 
+        self.jauge_faim -= (cout_base + cout_effort + malus_recherche)
+        #print(f"conso : {(cout_base + cout_base + malus_recherche)}")
         if self.jauge_faim <= 0:
             self.mort = True         
+        elif self.jauge_faim > self.max_jauge_faim:
+            self.jauge_faim = self.max_jauge_faim
         else :
             val = max(0, min(1, self.jauge_faim / 100 * self.resistance))
             self.color = (int(255 * (1 - val)), int(255 * val), 0)
@@ -171,13 +182,17 @@ class Mino:
             self.x = self.destinationx
         elif self.destinationx > self.x:
             self.x += self.vitesse
+            self.distance_traveled += self.vitesse
         else : 
             self.x -= self.vitesse
+            self.distance_traveled += self.vitesse
         
         distance_y = self.destinationy - self.y
         if abs(distance_y) <= self.vitesse:
             self.y = self.destinationy
         elif self.destinationy > self.y:
             self.y += self.vitesse
+            self.distance_traveled += self.vitesse
         else : 
             self.y -= self.vitesse
+            self.distance_traveled += self.vitesse
