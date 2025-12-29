@@ -8,12 +8,14 @@ class Mino:
     def __init__(self, id,size, min_x, max_x, min_y, max_y, food_list, resistance_mu, resistance_sigma, vitesse_mu, vitesse_sigma, satiete_mu, satiete_sigma, vision_mu, vision_sigma):
         self.id = id
         self.resistance = max(0.1, random.gauss(resistance_mu, resistance_sigma))
-        self.vitesse = max(0.5,random.gauss(vitesse_mu*size/30, vitesse_sigma))
+        self.vitesse = max(0.2,random.gauss(vitesse_mu*size/30, vitesse_sigma))
         self.vitesse_initiale = self.vitesse
 
         self.satiete = max(0.1,random.gauss(satiete_mu, satiete_sigma))
         self.vision = max(30,random.gauss(vision_mu*size/30, vision_sigma))
         
+
+        self.start_bonus_used = False
         self.max_jauge_faim = 100 * self.resistance
         self.jauge_faim =  100 + self.resistance * 25
         self.min_x = min_x
@@ -40,6 +42,8 @@ class Mino:
         self.food_eaten = 0
         self.distance_traveled = 0
 
+        self.nb_time_in_abundance_zone = 0
+
 
         self.sprint = False
 
@@ -53,6 +57,7 @@ class Mino:
     
     def update(self, nb_frame, food_list, food_list_to_see_collisions):
         """Actualise entierement un mino"""
+        #print(f"{self.jauge_faim}/{self.max_jauge_faim}")
         #print(f"{self.jauge_faim}/{self.max_jauge_faim}")
         if not self.mort : 
             #print(f"food_list : {len(food_list)}, foo_list_to_see_collision : {len(food_list_to_see_collisions)}")
@@ -98,23 +103,28 @@ class Mino:
         for f in self.food_list_to_see_collisions:
                 if (self.x<=f.x - 5 <=self.x + self.width or  self.x<=f.x +5 <=self.x + self.width)   and (self.y<=f.y+5<=self.y + self.height or self.y<=f.y -5 <=self.y + self.height) and not f.to_destroy:
                     self.food_eaten+=1
-                    f.to_destroy = True
+                    
                     if self.jauge_faim + 30*self.satiete <= self.resistance*150:
-                        self.jauge_faim += 25 + 15*self.satiete
+                        # print("+ ", 25 + 15*self.satiete)
+                        self.jauge_faim += f.valeur + 15*self.satiete
+                    f.to_destroy = True
+
 
     def update_jauge_faim(self):
         """Actualise la jauge de faim"""
         cout_base = self.consommation_fixe +(self.resistance*0.1)+(self.vision*0.001)
-        cout_effort = self.vitesse**1.5*self.resistance*0.005
+        cout_effort = self.vitesse**1.3*self.resistance*0.005
         malus_recherche = 0.25 if not self.destination_food else 0 
         self.jauge_faim -= (cout_base + cout_effort + malus_recherche)
-        #print(f"conso : {(cout_base + cout_base + malus_recherche)}")
+        #Le bonus de départ
+        if self.jauge_faim <self.max_jauge_faim and not self.start_bonus_used :
+            self.start_bonus_used = True
         if self.jauge_faim <= 0:
             self.mort = True         
-        elif self.jauge_faim > self.max_jauge_faim:
+        elif self.jauge_faim > self.max_jauge_faim and self.start_bonus_used:
             self.jauge_faim = self.max_jauge_faim
         else :
-            val = max(0, min(1, self.jauge_faim / 100 * self.resistance))
+            val = max(0, min(1, self.jauge_faim / self.max_jauge_faim))
             self.color = (int(255 * (1 - val)), int(255 * val), 0)
 
     def find_random_destination(self):
@@ -129,10 +139,20 @@ class Mino:
         x_to_go = None
         for f in list_to_search:
             if not f.to_destroy:
+                if self.jauge_faim > self.max_jauge_faim *0.2: #Il regarde que quand il a 20% de sa vie, sinon il se concentre sur celles autours de lui
+                    if f.in_zone:
+                        dx = f.x - self.x
+                        dy = f.y - self.y
+                        dist_min = dx*dx + dy*dy 
+                        x_to_go = f.x
+                        y_to_go = f.y
+                        food = f
+                        break
+
                 dx = f.x - self.x
                 dy = f.y - self.y
                 distance_sq = dx*dx + dy*dy 
-                #Ici on compare directement les carré car beaucoup moins couteux que pour la racine carré
+                #Ici on compare directement les carré car beaucoup moins couteux que la racine carré
                 if distance_sq < dist_min:
                     dist_min = distance_sq
                     x_to_go = f.x

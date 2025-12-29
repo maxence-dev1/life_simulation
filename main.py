@@ -42,6 +42,10 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
             for event in events:
                 if event.type == pygame.QUIT:
                     state_menu[0] = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_KP_ENTER:
+                        config.start()
+                
             config.menu_update(events)
             
             
@@ -57,7 +61,7 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
         engine = simulationengine.Engine(WIDTH, HEIGHT, config.ratio_food, running, d, False, screen, manager)
         
         engine.init_grid()
-        
+        engine.init_abundance_zone()
         
         engine.init_gui(f"FPS : 0/{config.fps}")
         engine.init_minos(config.nb_minos,config.resistance_mu, config.resistance_sigma, config.vitesse_mu, config.vitesse_sigma, config.satiete_mu, config.satiete_sigma, config.vision_mu, config.vision_sigma, config.print_vision)
@@ -87,14 +91,17 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
 
                 
             engine.update_all_minos(config.afficher_jeu)
+            engine.update_abundance_zone()
 
             if engine.minos_dead == config.nb_minos:
+                print("FINI")
                 running[0] = False
             
             if config.afficher_jeu:
                 engine.print_grid(config.print_grille)
                 d.draw_all_mino(engine.minos_list)
                 d.draw_all_food(engine.food_list)
+                engine.draw_abundance_zone()
                 manager.update(time_delta)
                 manager.draw_ui(screen)
                 engine.label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{config.fps}")
@@ -110,9 +117,14 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
                     pygame.display.flip()
                     one = False
 
-
+        pd.set_option("display.max_rows", 100)
         df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived", "food_eaten", "distance_traveled"])
         df_minos["ratio_food"] = engine.ratio_food
+        print(df_minos)
+        id1 = df_minos["time_lived"].idxmax()
+        print("best : ", engine.minos_list[id1].nb_time_in_abundance_zone)
+        id2 = df_minos["time_lived"].idxmin()
+        print("worst : ", engine.minos_list[id2].nb_time_in_abundance_zone)
         pd.set_option('display.max_rows', 100)
         g = graph.GraphStatistics(df_minos, engine.food_data)
 
@@ -157,4 +169,5 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
 
         df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived", "food_eaten", "distance_traveled"])
         return (df_minos, engine.food_data)
-    
+
+main()

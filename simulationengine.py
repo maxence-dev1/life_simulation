@@ -33,7 +33,10 @@ class Engine():
         self.nb_minos = 0
         self.size_food = 0
         
+        self.abundance_zone = [0,0,0,0]
+        self.time_next_move_abundance_zone = 0
 
+        self.compteur_ajouter_food = 0
         
 
 
@@ -102,6 +105,24 @@ class Engine():
                 self.food_data.append([m.jauge_faim])
                 self.minos_list.append(m)
     
+    def init_abundance_zone(self):
+        self.abundance_zone = [random.randint(0,self.width - 300), random.randint(0,self.height-300), 300, 300]
+        self.time_next_move_abundance_zone = random.randint(70, 250)
+
+    def update_abundance_zone(self):
+        if self.nb_frame == self.time_next_move_abundance_zone:
+            for f in self.food_list:
+                if  self.abundance_zone[0] <= f.x <= self.abundance_zone[0] + self.abundance_zone[2] and self.abundance_zone[1] <= f.y <= self.abundance_zone[1] + self.abundance_zone[3]:
+                    f.to_destroy = True
+            new_width = random.randint(200,400)
+            new_height = random.randint(200,400)
+            self.abundance_zone = [random.randint(0,self.width - new_width), random.randint(0,self.height-new_height), new_width, new_height]
+            self.time_next_move_abundance_zone = self.nb_frame + random.randint(70, 250)
+            
+
+    def draw_abundance_zone(self):
+        self.d.draw_abundance_zone(self.abundance_zone)
+
 
     def update_food(self):
         self.nb_frame+=1
@@ -114,16 +135,34 @@ class Engine():
             for cellule_liste in ligne:
                 cellule_liste.clear()
         self.food_list = [f for f in self.food_list if not f.to_destroy]
+        i=0
         while (len(self.food_list)<self.nb_food):
-            self.food_list.append(food.Food(random.randint(10, self.width-10), random.randint(10,self.height-10), self.size_food ))
-        
-        
+            if self.compteur_ajouter_food %4 != 0:
+                f = food.Food(random.randint(10, self.width-10), random.randint(10,self.height-10), self.size_food )
+                self.food_list.append(f)
+            else : 
+                f = food.Food(random.randint(self.abundance_zone[0], self.abundance_zone[0] + self.abundance_zone[2]), random.randint(self.abundance_zone[1],self.abundance_zone[1] + self.abundance_zone[3]), self.size_food, True)
+                if random.randint(1,3)%3 != 0:
+                    f.color = (239,191,4)
+                    f.valeur = 35
+                self.food_list.append(f)
+            self.compteur_ajouter_food +=1
+            if i >= 5:
+                break
+            i+=1
+
+
         for f in self.food_list: #On construit la grille
             self.grid[f.y//100, f.x//100].append(f)
 
     def update_all_minos(self, afficher_jeu):
         self.minos_dead = 0
+        food_in_abundance = [f for f in self.food_list if 
+                     self.abundance_zone[0] <= f.x <= self.abundance_zone[0] + self.abundance_zone[2] and 
+                     self.abundance_zone[1] <= f.y <= self.abundance_zone[1] + self.abundance_zone[3]]
         for mino in self.minos_list:
+            if self.abundance_zone[0] <= mino.x <= self.abundance_zone[0] + self.abundance_zone[2] and self.abundance_zone[1] <= mino.y <= self.abundance_zone[1] + self.abundance_zone[3]:
+                mino.nb_time_in_abundance_zone +=1
             if mino.mort:
                 self.minos_list_id[mino.id,6] = mino.food_eaten
                 self.minos_list_id[mino.id,7] = mino.distance_traveled
@@ -142,17 +181,16 @@ class Engine():
             se = ((mino.y+ mino.width)//100, (mino.x+mino.height)//100)
             if (se not in cases_chevauchée):
                 cases_chevauchée.append(se)
-            food_list_to_see_collisions = []
+            food_list_to_see_collisions = list(food_in_abundance)
             for ligne, colonne in cases_chevauchée:
                 if 0 <= ligne < self.grid.shape[0] and 0 <= colonne < self.grid.shape[1]:
-                    food_list_to_see_collisions.append(self.grid[int(ligne), int(colonne)])
-            food_neighbors_flat = [f for sublist in food_list_to_see_collisions for f in sublist]
+                    food_list_to_see_collisions.extend(self.grid[int(ligne), int(colonne)])
             if afficher_jeu:
                 self.d.draw_mino(mino)
                 #Mtn il faut trouver quel(s) cases envoyer au minos
-                mino.update(self.nb_frame, self.food_list, food_neighbors_flat)
+                mino.update(self.nb_frame, self.food_list, food_list_to_see_collisions)
             else : 
-                mino.update_speed(self.nb_frame, self.food_list, food_neighbors_flat) 
+                mino.update_speed(self.nb_frame, self.food_list, food_list_to_see_collisions) 
             self.food_data[mino.id].append(mino.jauge_faim)
 
 

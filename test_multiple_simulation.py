@@ -30,3 +30,6 @@ for i in range(10):
 
 final_big_df = pd.concat(big_data)
 final_big_df.to_csv("data.csv",header= True, index=False)
+
+
+

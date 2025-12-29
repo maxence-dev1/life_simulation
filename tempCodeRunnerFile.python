@@ -1,142 +1,38 @@
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import matplotlib.dates as mdates
-import numpy as np
 import pandas as pd
-from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
 
-# --- 1. CONFIGURATION DU STYLE (LE SECRET DU RENDU) ---
-def setup_dark_style():
-    """Configure manuellement les paramètres de Matplotlib pour un rendu UI moderne."""
-    # Palette de couleurs "Cyberpunk"
-    colors = {
-        'bg': '#0d1117',        # Fond très sombre (proche Github Dark)
-        'fg': '#c9d1d9',        # Texte gris clair
-        'grid': '#30363d',      # Grille subtile
-        'accent1': '#58a6ff',   # Bleu électrique
-        'accent2': '#3fb950',   # Vert néon
-        'accent3': '#ff7b72',   # Rouge doux
-        'spine': '#21262d'      # Bordures discrètes
-    }
-    
-    plt.rcParams.update({
-        'figure.facecolor': colors['bg'],
-        'axes.facecolor': colors['bg'],
-        'axes.edgecolor': colors['spine'],
-        'axes.labelcolor': colors['fg'],
-        'text.color': colors['fg'],
-        'xtick.color': colors['fg'],
-        'ytick.color': colors['fg'],
-        'grid.color': colors['grid'],
-        'grid.linestyle': ':',
-        'grid.linewidth': 0.8,
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'DejaVu Sans', 'Liberation Sans'],
-        'figure.dpi': 120  # Haute résolution
-    })
-    return colors
+# 1. Charger les données
+# Remplace 'master_dataset.csv' par le nom de ton fichier
+df = pd.read_csv("data.csv")
 
-# --- 2. GÉNÉRATION DE DONNÉES COMPLEXES ---
-def get_data():
-    np.random.seed(42)
-    dates = pd.date_range('2023-01-01', periods=150)
-    
-    # Simulation d'un cours avec tendance et bruit
-    trend = np.linspace(0, 20, 150)
-    noise = np.cumsum(np.random.randn(150))
-    price = 100 + trend + noise
-    
-    # Données pour barres
-    categories = ['Tech', 'Santé', 'Finance', 'Energie', 'Conso']
-    values = [85, 62, 75, 45, 90]
-    
-    return dates, price, categories, values
+# 2. Choisir les colonnes "Entrée" (X) et la colonne "Cible" (y)
+# On donne les gènes + le contexte au modèle
+features = ['resistance', 'vitesse', 'satiete', 'vision', 'nb_minos', 'ratio_food']
+X = df[features]
+y = df['time_lived']
 
-# --- 3. FONCTIONS DE DESSIN AVANCÉES ---
+# 3. Diviser les données (80% pour apprendre, 20% pour vérifier si l'IA a raison)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-def add_glow_effect(ax, x, y, color, label=None):
-    """Astuce pour créer un effet de néon : on trace plusieurs lignes transparentes."""
-    # L'aura (le flou)
-    ax.plot(x, y, color=color, linewidth=8, alpha=0.1)
-    ax.plot(x, y, color=color, linewidth=4, alpha=0.2)
-    # La ligne principale (coeur)
-    ax.plot(x, y, color=color, linewidth=1.5, alpha=1.0, label=label)
+# 4. Créer le "Cerveau" (Random Forest)
+# On utilise 100 arbres de décision qui vont voter pour la meilleure réponse
+model = RandomForestRegressor(n_estimators=100, random_state=42)
 
-def create_dashboard():
-    colors = setup_dark_style()
-    dates, price, cats, vals = get_data()
-    
-    # --- MISE EN PAGE AVEC GRIDSPEC ---
-    # On crée une grille complexe : 2 lignes, 3 colonnes
-    fig = plt.figure(figsize=(14, 8), constrained_layout=True)
-    gs = gridspec.GridSpec(2, 3, figure=fig, height_ratios=[1, 0.6])
+print("L'IA est en train d'analyser vos 300 000 lignes...")
+model.fit(X_train, y_train)
+print("Analyse terminée !")
 
-    # --- ZONE 1 : GRAPHIQUE PRINCIPAL (Prend toute la largeur du haut) ---
-    ax_main = fig.add_subplot(gs[0, :])
-    
-    # Ajout de l'effet Néon sur la courbe
-    add_glow_effect(ax_main, dates, price, colors['accent1'], label='BTC/USD')
-    
-    # Remplissage dégradé sous la courbe (Astuce visuelle)
-    ax_main.fill_between(dates, price, price.min(), color=colors['accent1'], alpha=0.08)
-    
-    # Annotations intelligentes (Le point Max)
-    max_idx = np.argmax(price)
-    ax_main.scatter(dates[max_idx], price[max_idx], color=colors['accent2'], s=100, zorder=5, edgecolor='white')
-    ax_main.annotate(f'Pic: {price[max_idx]:.2f}$', 
-                     xy=(dates[max_idx], price[max_idx]), 
-                     xytext=(10, 10), textcoords='offset points',
-                     bbox=dict(boxstyle="round,pad=0.3", fc=colors['bg'], ec=colors['accent2'], alpha=0.8),
-                     arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2", color=colors['accent2']))
+# 5. FAIRE PARLER LES DONNÉES (Visualisation)
+# On récupère l'importance de chaque gène calculée par l'IA
+importances = pd.Series(model.feature_importances_, index=features).sort_values(ascending=False)
 
-    ax_main.set_title("ANALYSE DE TENDANCE (Temps Réel)", fontsize=14, pad=20, loc='left', fontweight='bold')
-    ax_main.grid(True)
-    ax_main.margins(x=0) # Supprime les marges blanches latérales
-
-    # --- ZONE 2 : HISTOGRAMME HORIZONTAL STYLISÉ (Bas Gauche) ---
-    ax_bar = fig.add_subplot(gs[1, 0])
-    
-    y_pos = np.arange(len(cats))
-    # Barres avec couleur conditionnelle
-    bar_colors = [colors['accent2'] if v > 70 else colors['accent3'] for v in vals]
-    bars = ax_bar.barh(y_pos, vals, color=bar_colors, height=0.6, alpha=0.8)
-    
-    # Enlever les bordures inutiles (Spines)
-    ax_bar.spines['top'].set_visible(False)
-    ax_bar.spines['right'].set_visible(False)
-    ax_bar.spines['bottom'].set_visible(False)
-    ax_bar.set_xticks([]) # On enlève l'axe X, on va mettre les chiffres sur les barres
-    ax_bar.set_yticks(y_pos)
-    ax_bar.set_yticklabels(cats, fontsize=11)
-    
-    # Mettre les valeurs DANS les barres
-    for i, bar in enumerate(bars):
-        ax_bar.text(5, bar.get_y() + bar.get_height()/2, f"{vals[i]}%", 
-                    va='center', color='white', fontweight='bold')
-    
-    ax_bar.set_title("PERFORMANCE PAR SECTEUR", fontsize=10, loc='left', color=colors['fg'])
-
-    # --- ZONE 3 : SCATTER PLOT AVEC TAILLES VARIABLES (Bas Droite - prend 2 colonnes) ---
-    ax_scatter = fig.add_subplot(gs[1, 1:])
-    
-    # Génération de bulles aléatoires
-    x_scat = np.random.randn(50)
-    y_scat = np.random.randn(50)
-    sizes = np.random.rand(50) * 400
-    
-    scatter = ax_scatter.scatter(x_scat, y_scat, s=sizes, c=x_scat, cmap='coolwarm', alpha=0.6, edgecolors='none')
-    
-    ax_scatter.set_title("CORRÉLATION & VOLATILITÉ", fontsize=10, loc='left')
-    ax_scatter.grid(True, alpha=0.3)
-    
-    # Personnalisation de l'axe pour le rendre propre
-    ax_scatter.spines['top'].set_visible(False)
-    ax_scatter.spines['right'].set_visible(False)
-
-    # Titre global
-    fig.suptitle('DASHBOARD EXECUTIVE - MATPLOTLIB ENGINE', x=0.01, y=0.98, ha='left', fontsize=18, fontweight='bold', color='white')
-
-    plt.show()
-
-if __name__ == "__main__":
-    create_dashboard()
+plt.figure(figsize=(10, 6))
+sns.barplot(x=importances.values, y=importances.index, palette="viridis")
+plt.title("Quels facteurs dictent la survie des Minos ?")
+plt.xlabel("Score d'importance (0 à 1)")
+plt.ylabel("Caractéristiques")
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.show()

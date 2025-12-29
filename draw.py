@@ -49,7 +49,7 @@ class Draw():
 
     def draw_food(self, food):
         """Affiche une nourriture"""
-        pygame.draw.circle(self.screen, (0,0,255), (food.x, food.y), food.size)
+        pygame.draw.circle(self.screen, food.color, (food.x, food.y), food.size)
 
     def draw_all_food(self, food):
         """Affiche toutes les nourritures"""
@@ -57,6 +57,8 @@ class Draw():
             self.draw_food(f)
             #self.refresh_zone(f.x -30, f.y-30, 65,65)
     
+    def draw_abundance_zone(self, abundance_zone):
+        pygame.draw.rect(self.screen, (255,0,0), abundance_zone, 5)
 
             
 
