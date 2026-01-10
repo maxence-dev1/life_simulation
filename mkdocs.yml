@@ -1,0 +1,30 @@
+site_name: LifeSim ML Documentation
+theme:
+  name: material
+  palette:
+    scheme: slate 
+    primary: indigo
+
+plugins:
+  - search
+  - mermaid2
+
+nav:
+  - Accueil: index.md
+  - Fonctionnement global : 
+    - Minos : Explication/minos.md
+  - Architecture: architecture.md
+  - Algorithmes ML: ml_logic.md
+  - Guide d'installation: installation.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
