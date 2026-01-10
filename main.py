@@ -192,7 +192,8 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
 
                 
             engine.update_all_minos(config.afficher_jeu)
-            engine.update_abundance_zone()
+            if config.abundance_zone:
+                engine.update_abundance_zone()
 
             if engine.minos_dead == config.nb_minos:
                 print("FINI")
@@ -202,7 +203,8 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
                 engine.print_grid(config.print_grille)
                 d.draw_all_mino(engine.minos_list)
                 d.draw_all_food(engine.food_list)
-                engine.draw_abundance_zone()
+                if config.abundance_zone:
+                    engine.draw_abundance_zone()
                 manager.update(time_delta)
                 manager.draw_ui(screen)
                 engine.label_fps.set_text(f"FPS : {clock.get_fps():.1f}/{config.fps}")

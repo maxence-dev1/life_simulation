@@ -17,6 +17,7 @@ class SimulationConfig:
         self.vision_sigma = 100
         self.print_grille = False
         self.fps = 20
+        self.abundance_zone = False
         self.screen = screen
         self.state_menu = state_mene
         self.running = running
@@ -72,6 +73,13 @@ class SimulationConfig:
             default=str(self.ratio_food),
             input_type=pygame_menu.locals.INPUT_FLOAT,
             onchange=lambda value: setattr(self, "ratio_food", float(value))
+        )
+
+        self.menu.add.toggle_switch(
+            title="Abundance zone :",
+            default=self.abundance_zone,
+            onchange=lambda value: setattr(self, "abundance_zone", int(value)),
+            width=60
         )
 
 

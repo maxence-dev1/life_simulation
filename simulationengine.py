@@ -2,7 +2,7 @@ import pygame, pygame_gui, pygame_menu, numpy, food, random, minos, math
 
 
 class Engine():
-    def __init__(self, width, height, ratio_food, running, d, multiple_mode = False, screen = None, manager = None):
+    def __init__(self, width, height, ratio_food, running, d, multiple_mode = False, screen = None, manager = None, use_abundance_zone = False):
         self.d = d
         if not multiple_mode:  
             self.screen = screen
@@ -33,6 +33,7 @@ class Engine():
         self.nb_minos = 0
         self.size_food = 0
         
+        self.use_abundance_zone = use_abundance_zone
         self.abundance_zone = [0,0,0,0]
         self.time_next_move_abundance_zone = 0
 
@@ -136,21 +137,30 @@ class Engine():
                 cellule_liste.clear()
         self.food_list = [f for f in self.food_list if not f.to_destroy]
         i=0
-        while (len(self.food_list)<self.nb_food):
-            if self.compteur_ajouter_food %4 != 0:
+        if self.use_abundance_zone:
+            while (len(self.food_list)<self.nb_food):
+                
+                if self.compteur_ajouter_food %4 != 0:
+                    f = food.Food(random.randint(10, self.width-10), random.randint(10,self.height-10), self.size_food )
+                    self.food_list.append(f)
+                else : 
+                    f = food.Food(random.randint(self.abundance_zone[0], self.abundance_zone[0] + self.abundance_zone[2]), random.randint(self.abundance_zone[1],self.abundance_zone[1] + self.abundance_zone[3]), self.size_food, True)
+                    if random.randint(1,3)%3 != 0:
+                        f.color = (239,191,4)
+                        f.valeur = 35
+                    self.food_list.append(f)
+                self.compteur_ajouter_food +=1
+                if i >= 5:
+                    break
+                i+=1
+        else : 
+            while (len(self.food_list)<self.nb_food):
                 f = food.Food(random.randint(10, self.width-10), random.randint(10,self.height-10), self.size_food )
                 self.food_list.append(f)
-            else : 
-                f = food.Food(random.randint(self.abundance_zone[0], self.abundance_zone[0] + self.abundance_zone[2]), random.randint(self.abundance_zone[1],self.abundance_zone[1] + self.abundance_zone[3]), self.size_food, True)
-                if random.randint(1,3)%3 != 0:
-                    f.color = (239,191,4)
-                    f.valeur = 35
-                self.food_list.append(f)
-            self.compteur_ajouter_food +=1
-            if i >= 5:
-                break
-            i+=1
-
+                self.compteur_ajouter_food +=1
+                if i >= 5:
+                    break
+                i+=1
 
         for f in self.food_list: #On construit la grille
             self.grid[f.y//100, f.x//100].append(f)
