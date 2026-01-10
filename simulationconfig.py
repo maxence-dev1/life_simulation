@@ -16,26 +16,26 @@ class SimulationConfig:
         self.vision_mu = 200
         self.vision_sigma = 100
         self.print_grille = False
-        self.fps = -1
+        self.fps = 20
         self.screen = screen
         self.state_menu = state_mene
         self.running = running
         self.width = width
         self.height = height
-        if screen is not None:
-            self.menu = pygame_menu.Menu(
-                width=width,
-                height=height,
-                title="Menu Principal",
-                theme=pygame_menu.themes.THEME_DARK
-            )
+        self.menu = pygame_menu.Menu(
+            width=width,
+            height=height,
+            title="Menu Principal",
+            theme=pygame_menu.themes.THEME_DARK)
+        
 
 
     def start(self):
         if not self.afficher_jeu:
             self.fps = -1
         self.state_menu[0] = False
-        self.running[0] = 1 
+        if self.running is not None:
+            self.running[0] = True 
 
 
     
@@ -45,18 +45,18 @@ class SimulationConfig:
     def less_fps(self):
         self.fps -= 1
 
+
+
     def init_all(self, interface = True):
         if not interface:
-            self.running[0] = 1 
+            self.running[0] = True
             return
-
         self.menu.add.button("Jouer", self.start)
         self.menu.add.button("Quitter", pygame_menu.events.EXIT)
 
         self.menu.add.toggle_switch(
             title="Plein écran : ",
             default=False,
-            # Correct : n'attend qu'un seul argument (value)
             onchange=lambda value: setattr(self, "full_screen", value),
             width=60
         )
@@ -78,7 +78,6 @@ class SimulationConfig:
         self.menu.add.toggle_switch(
             title="Afficher vision :",
             default=self.print_vision,
-            # Correct : n'attend qu'un seul argument (value)
             onchange=lambda value: setattr(self, "print_vision", int(value)),
             width=60
         )
@@ -160,6 +159,48 @@ class SimulationConfig:
             input_type=pygame_menu.locals.INPUT_INT,
             onchange=lambda val: setattr(self, "fps", int(val)),
         )
+
+    def init_all_several_simulation(self, infos):
+            self.menu.add.button("Jouer", self.start)
+            self.menu.add.button("Quitter", pygame_menu.events.EXIT)
+            self.menu.add.text_input(
+                "nombre minos minimal: ",
+                default=str(infos[0]),
+                input_type=pygame_menu.locals.INPUT_INT,
+                onchange=lambda value: infos.__setitem__(0, int(value) if value else 0)
+            )
+            self.menu.add.text_input(
+                "nombre minos maximal: ",
+                default=str(infos[1]),
+                input_type=pygame_menu.locals.INPUT_INT,
+                onchange=lambda value: infos.__setitem__(0, int(value) if value else 0)
+            )
+            self.menu.add.text_input(
+                "pas nombre minos: ",
+                default=str(infos[2]),
+                input_type=pygame_menu.locals.INPUT_INT,
+                onchange=lambda value: infos.__setitem__(0, int(value) if value else 0)
+            )
+            self.menu.add.text_input(
+                "ratio food minimal: ",
+                default=str(infos[3]),
+                input_type=pygame_menu.locals.INPUT_INT,
+                onchange=lambda value: infos.__setitem__(0, int(value) if value else 0)
+            )
+            self.menu.add.text_input(
+                "ratio food maximal: ",
+                default=str(infos[4]),
+                input_type=pygame_menu.locals.INPUT_INT,
+                onchange=lambda value: infos.__setitem__(0, int(value) if value else 0)
+            )
+            self.menu.add.text_input(
+                "pas ratio food: ",
+                default=str(infos[5]),
+                input_type=pygame_menu.locals.INPUT_INT,
+                onchange=lambda value: infos.__setitem__(0, int(value) if value else 0)
+            )
+
+            return
 
     def menu_update(self, events):
         self.menu.update(events)

@@ -8,11 +8,112 @@ import pandas as pd
 import ctypes
 import os
 
-# Force Windows à ne pas redimensionner la fenêtre (DPI Awareness)
+
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(1)
 except Exception:
     ctypes.windll.user32.SetProcessDPIAware()
+
+
+
+def valider(running_mode_choice):
+    running_mode_choice[0] = False
+
+def toggle_one_simulation(one_simulation, switch_one, switch_several):
+    one_simulation[0] = not one_simulation[0]
+    switch_several.set_value(not one_simulation[0])
+    switch_one.set_value(one_simulation[0])
+
+
+def main_mode_choice():
+    pygame.init()
+    one_simulation = [True]
+    mode_choice_screen = pygame.display.set_mode((800, 600))
+    mode_choice_menu = pygame_menu.Menu(
+                width=800,
+                height=600,
+                title="Mode choice",
+                theme=pygame_menu.themes.THEME_DARK
+            )
+    
+    
+    
+    mode_choice_menu.add.label("Veuillez choisir votre mode\n")
+    mode_choice_menu.add.label("Simulation simple\n")
+    switch_one = mode_choice_menu.add.toggle_switch(
+            title="Faire une seule simulation ",
+            default=one_simulation[0],
+            onchange=lambda value: toggle_one_simulation(one_simulation, switch_one, switch_several),
+            width=60
+        )
+    
+    mode_choice_menu.add.label("several simulations ")
+    switch_several =  mode_choice_menu.add.toggle_switch(
+            title="Faire plusieurs simulations ",
+            default= not one_simulation[0],
+            onchange=lambda value: toggle_one_simulation(one_simulation, switch_one, switch_several),
+            width=60
+        )
+
+
+    mode_choice_menu.add.button("Valider", lambda: valider(running_mode_choice))
+    
+    
+    
+    running_mode_choice = [True]
+    while running_mode_choice[0]:
+        mode_choice_screen.fill((0,0,0))
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                running_mode_choice = False
+        mode_choice_menu.update(events)
+        mode_choice_menu.draw(mode_choice_screen)
+        pygame.display.flip()
+    
+    if one_simulation[0]:
+        print("main")
+        main()
+    else : 
+        print("not main")
+        several_simulations()
+
+
+def several_simulations():
+    state_menu = [True] 
+    infos = [1,50,2,100,1,10] #mino min, minos max, minos pas, food min, food max, pas
+    screen = pygame.display.set_mode((2000, 1000))
+    config = simulationconfig.SimulationConfig(2000, 1000, screen, state_menu, None)
+    config.init_all_several_simulation(infos)
+    
+
+
+    while state_menu[0]:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                state_menu[0] = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_KP_ENTER:
+                    config.start()
+            
+        config.menu_update(events)
+    
+    big_data = []
+    for nb_minos in range(infos[0],infos[1],infos[2]): 
+        for ratio in range(infos[4],infos[3],infos[5]):
+            res = main(nb_minos,1/ratio)
+            df_sim = res[0]
+            df_sim["nb_minos"] = nb_minos
+            df_sim["ratio_food"] = 1/ratio
+            big_data.append(df_sim)
+            print(f"simulation avec {nb_minos} minos et 1/{ratio} ratio. time : {res[0]["time_lived"].max()}")
+
+
+    final_big_df = pd.concat(big_data)
+    final_big_df.to_csv("data.csv",header= True, index=False)
+
+
 
 def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
     pygame.init()
@@ -138,17 +239,18 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
     else:
         clock = pygame.time.Clock()
 
-        state_menu = [True] #Ici j'ai mis des listes afin de pouvoir modifier directement la variable à l'adresse depuis d'autres fonctions
+        
         running = [False]
-
+        state_menu = [True] #Ici j'ai mis des listes afin de pouvoir modifier directement la variable à l'adresse depuis d'autres fonctions
         config = simulationconfig.SimulationConfig(width, height, None, state_menu, running)
         config.fps = -1
-
-
-
-
-        config.init_all(False)
         config.nb_minos = nb_minos
+        config.init_all(False)
+        
+        
+        
+        
+        
 
         engine = simulationengine.Engine(width, height, config.ratio_food, running, None, True)
         engine.init_grid()
@@ -170,4 +272,4 @@ def main(nb_minos = None, ratio_food = None, width = 2000, height = 1000):
         df_minos = pd.DataFrame(engine.minos_list_id, columns=["id", "resistance", "vitesse", "satiete", "vision", "time_lived", "food_eaten", "distance_traveled"])
         return (df_minos, engine.food_data)
 
-main()
+main_mode_choice()
