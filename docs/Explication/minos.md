@@ -27,6 +27,14 @@ Comme dans la vraie vie, chaque attribut à un **coût** qui est ici représent�
 2. **Recherche active** : Sinon, il choisi la nourriture la plus proche
 3. **Errance** : si aucune nourriture n'est visible, il se dirige vers un point aléatoire. Cela augmentera sa consommation
 
+!!! info "Alimentation"
+    Lorsque le Minos entre en collision avec une nourriture, sa jauge de nourriture augmente en suivant la formule : 
+    
+    $$J = J + V_{aleur_nourriture}+15 \times S_{atiété}$$
+
+
+
+
 ### **Mode urgence (sprint)** : si la jauge de nourriture descend en dessous des 50% et qu'une nourriture est visible : 
 - La bordure du Minos devient jaune
 - Sa vitese est doublé
@@ -37,7 +45,7 @@ Comme dans la vraie vie, chaque attribut à un **coût** qui est ici représent�
 !!! info "Modèle de consommation énergétique"
     La consommation d'un Minos est calculé à chaque frame. Ce modèle garantit un équilibre entre les capacités physique et la survie.
 
-    **Formule de calcul :**
+    **Formule :**
     
     $$C = 0.5 + (R_{esistance} \times 0.1) + (V_{ision} \times 0.001) + (V_{itesse}^{1.3} \times R \times 0.005) + M$$
 

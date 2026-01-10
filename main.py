@@ -25,15 +25,35 @@ def toggle_one_simulation(one_simulation, switch_one, switch_several):
     switch_one.set_value(one_simulation[0])
 
 
+
+my_theme = pygame_menu.themes.THEME_DARK.copy()
+my_theme.background_color = (25, 27, 30)       
+my_theme.title_background_color = (35, 38, 42) 
+my_theme.title_font_color = (220, 220, 220)    
+my_theme.widget_font_color = (180, 180, 180)   
+my_theme.selection_color = (70, 130, 180)      
+
+my_theme.title_font = pygame_menu.font.FONT_BEBAS  
+my_theme.widget_font = pygame_menu.font.FONT_OPEN_SANS
+my_theme.widget_font_size = 22
+my_theme.title_font_size = 35
+my_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_UNDERLINE_TITLE
+
+
+my_theme.widget_cursor = pygame_menu.locals.CURSOR_HAND 
+my_theme.widget_margin = (0, 15)                       
+
 def main_mode_choice():
     pygame.init()
     one_simulation = [True]
+    
+    
     mode_choice_screen = pygame.display.set_mode((800, 600))
     mode_choice_menu = pygame_menu.Menu(
                 width=800,
                 height=600,
                 title="Mode choice",
-                theme=pygame_menu.themes.THEME_DARK
+                theme=my_theme
             )
     
     
